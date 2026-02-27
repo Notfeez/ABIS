@@ -1,3 +1,4 @@
 # Кэш байт-кода Python
 **/__pycache__/
+**/main/__pycache__/
 *.pyc
