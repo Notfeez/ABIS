@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>АБИС — Библиотека</title>
+    {% load static %}
+<link rel="stylesheet" href="{% static 'main/css/reset.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <div class="container_header">
+        <div class="logo-icon">
+            <img src="{% static 'main/images/Background.svg' %}" alt="">
+        </div>
+        <div>
+            <div class="title_header">АБИС — Библиотека</div>
+            <div class="subtitle_header">Автоматизированная система учёта книг</div>
+        </div>
+    </div>
+
+    <button class="btn_header"><img src="{% static 'main/images/SVG.svg' %}">Войти</button>
+</header>
+
+<main class="container">
+
+    <h1 class="title_main">Каталог книг</h1>
+    <p class="subtitle_main">Войдите или зарегистрируйтесь для запроса книг из библиотеки</p>
+
+    <div class="search-box">
+        <input type="text" placeholder="Поиск книг по названию, автору или коду...">
+    </div>
+
+    <div class="stats">
+        Всего книг: <b>0</b> · Доступно: <b>0</b> · На руках: <b>0</b>
+    </div>
+</main>
+
+
+</body>
+</html>
