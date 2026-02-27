@@ -11,3 +11,6 @@
 Применить миграции: python manage.py migrate.
 
 При необходимости загрузить фикстуры: python manage.py loaddata initial_data
+
+
+/admin откроет окно администратора, логин admin, пароль 12345678
