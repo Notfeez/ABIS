@@ -1,1 +1,3 @@
-.env/
+# Кэш байт-кода Python
+**/__pycache__/
+*.pyc
