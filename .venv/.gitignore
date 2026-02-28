@@ -1,8 +1,2 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
 *
-.venv/
-# Кэш байт-кода Python
-**/__pycache__/
-**/main/__pycache__/
-__pycache__/
-*.pyc
-*.pyo
