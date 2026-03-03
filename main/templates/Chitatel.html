@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>АБИС — Библиотека</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/Курсач/Читалзона/reset2.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="40" rx="10" fill="#155DFC"/>
+      <path d="M24 14L28 28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M20 14V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16 16V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 12V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="logo-text">
+      <h1>АБИС — Библиотека</h1>
+      <p>Личный кабинет читателя</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="user-info">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
+      </svg>
+      Иванов Иван Иванович
+    </div>
+    <button class="logout-btn">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      Выйти
+    </button>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-tabs">
+    <button class="nav-tab" onclick="switchTab(this)">Каталог</button>
+    <button class="nav-tab active" onclick="switchTab(this)">Мои книги</button>
+    <button class="nav-tab" onclick="switchTab(this)">Мои запросы</button>
+    <button class="nav-tab" onclick="switchTab(this)">Настройки</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+  <div class="search-wrap">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input class="search-input" id="searchInput" type="text"
+           placeholder="Поиск книг по названию, автору или коду..." oninput="filterBooks()">
+  </div>
+
+  <div class="stats" id="statsLine">
+    Всего книг: <span>9</span> • Доступно: <span>4</span> • На руках: <span>5</span>
+  </div>
+
+  <div class="filter-chips">
+    <button class="chip active" onclick="setFilter(this, 'all')">Все</button>
+    <button class="chip" onclick="setFilter(this, 'available')">Доступные</button>
+    <button class="chip" onclick="setFilter(this, 'issued')">Выданные</button>
+    <button class="chip" onclick="setFilter(this, 'unavailable')">Недоступные</button>
+  </div>
+
+</body>
+</html>
