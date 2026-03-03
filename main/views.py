@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate, login
 from .forms import CustomUserCreationForm, EmailAuthenticationForm
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 def index(request):
@@ -25,7 +26,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('NonRegister')  # замените на нужный маршрут
+            return redirect('Chitatel')
     else:
         form = EmailAuthenticationForm()
     return render(request, 'login.html', {'form': form})
@@ -36,8 +37,12 @@ def register(request):
         if form.is_valid():
             user = form.save()
             backend = settings.AUTHENTICATION_BACKENDS[0]
-            login(request, user)  # автоматический вход после регистрации
-            return redirect('index')  # замените на имя вашего главного маршрута
+            login(request, user)
+            return redirect('Chitatel')
     else:
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
+
+@login_required
+def Chitatel(request):
+    return render(request, 'Chitatel.html')
