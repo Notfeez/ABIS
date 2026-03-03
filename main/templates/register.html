@@ -1,34 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
+{% load static %}
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация</title>
+    <link rel="stylesheet" href="{% static 'main/css/auth.css' %}">
+    <!-- <script src="{% static 'main/js/script.js' %}" defer></script> -->
 </head>
 <body>
-    <h2>Регистрация</h2>
+<div class="auth-container">
+    <div class="logo">
+        <img src="{% static 'main/images/Background.svg' %}" alt="">
+    </div>
+    <h2 id="title">Регистрация</h2>
+    <p class="subtitle">
+        Создайте аккаунт для работы с библиотекой
+    </p>
     <form method="post">
         {% csrf_token %}
-        <p>
-            <label for="id_first_name">Имя:</label>
+        <div class="form-group">
+            {{ form.first_name.label_tag }}
             {{ form.first_name }}
-        </p>
-        <p>
-            <label for="id_last_name">Фамилия:</label>
+        </div>
+        <div class="form-group">
+            {{ form.last_name.label_tag }}
             {{ form.last_name }}
-        </p>
-        <p>
-            <label for="id_email">Email:</label>
+        </div>
+        <div class="form-group">
+            {{ form.email.label_tag }}
             {{ form.email }}
-        </p>
-        <p>
-            <label for="id_password1">Пароль:</label>
+        </div>
+        <div class="form-group">
+            {{ form.password1.label_tag }}
             {{ form.password1 }}
-        </p>
-        <p>
-            <label for="id_password2">Подтверждение пароля:</label>
+        </div>
+        <div class="form-group">
+            {{ form.password2.label_tag }}
             {{ form.password2 }}
-        </p>
+        </div>
         <button type="submit">Зарегистрироваться</button>
+        <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
     </form>
-    <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+</div>
 </body>
 </html>
