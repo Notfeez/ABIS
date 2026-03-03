@@ -1,6 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import User, Loan, Book
-
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate, login
+from .forms import CustomUserCreationForm, EmailAuthenticationForm
+from django.conf import settings
 # Create your views here.
 
 def index(request):
@@ -16,20 +19,25 @@ def index(request):
         'all_books' : all_books,
     })
 
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.forms import AuthenticationForm
-from django.shortcuts import render, redirect
-
 def login_view(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = EmailAuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('NonRegister')  # или другая страница после входа
+            user = form.get_user()
+            login(request, user)
+            return redirect('NonRegister')  # замените на нужный маршрут
     else:
-        form = AuthenticationForm()
+        form = EmailAuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+def register(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            backend = settings.AUTHENTICATION_BACKENDS[0]
+            login(request, user)  # автоматический вход после регистрации
+            return redirect('index')  # замените на имя вашего главного маршрута
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'register.html', {'form': form})

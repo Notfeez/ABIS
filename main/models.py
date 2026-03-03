@@ -102,7 +102,18 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=20, choices=Roles.choices, default=Roles.READER, verbose_name="Роль")
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
+    username = models.CharField(
+        max_length=150,
+        unique=False,
+        help_text='Required. 150 characters or fewer.',
+        validators=[AbstractUser.username_validator],)
+    email = models.EmailField(
+        unique=True,
+        blank=False,
+        verbose_name='Email',
+        error_messages={
+            'unique': 'Пользователь с таким email уже существует.',
+        },)
     # No need to redefine first_name, last_name, email, password – they come from AbstractUser
 
     class Meta:
