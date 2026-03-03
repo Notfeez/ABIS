@@ -13,7 +13,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email')  # порядок отображения
+        fields = ('first_name', 'last_name', 'email')
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -26,10 +26,20 @@ class CustomUserCreationForm(UserCreationForm):
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         user.email = self.cleaned_data['email']
-
+        # Генерация username из email
+        base_username = self.cleaned_data['email'].split('@')[0]
+        username = base_username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+        user.username = username
         if commit:
             user.save()
         return user
 
 class EmailAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(label='Email', max_length=254)
+    error_messages = {
+        'invalid_login': "Неверный email или пароль. Попробуйте снова.",
+    }

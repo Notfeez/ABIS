@@ -90,7 +90,10 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
+AUTHENTICATION_BACKENDS = ['main.backends.EmailBackend']
 AUTH_USER_MODEL = 'main.User'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'Chitatel'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -107,9 +110,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = [
-    'main.backends.EmailBackend',
-]
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
