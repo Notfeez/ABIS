@@ -123,6 +123,3 @@ class User(AbstractUser):
     @property
     def is_reader(self):
         return self.role == self.Roles.READER
-
-class Catalog(models.Model):
-    
