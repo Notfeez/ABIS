@@ -3,22 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>АБИС — Библиотека</title>
-<link rel="stylesheet" href="/main/static/main/css/reset.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/main/css/reset.css' %}">
 </head>
 <body>
-
-<header class="header">
-    <div class="container_header">
-        <div class="logo-icon">
-            <img src="/main/static/main/images/Background.svg" alt="">
+    <header class="header">
+        <div class="container_header">
+            <div class="logo-icon">
+                <img src="{% static '/main/images/Background.svg' %}" alt="">
+            </div>
+            <div>
+                <div class="title_header">АБИС — Библиотека</div>
+                <div class="subtitle_header">Автоматизированная система учёта книг</div>
+            </div>
         </div>
-        <div>
-            <div class="title_header">АБИС — Библиотека</div>
-            <div class="subtitle_header">Автоматизированная система учёта книг</div>
-        </div>
-    </div>
-
-    <button class="btn_header"><img src="/main/static/main/images/SVG.svg">Войти</button>
+        <button class="btn_header" onclick="window.location.href='{% url 'login' %}'">
+            <img src="{% static '/main/images/SVG.svg' %}" alt="">Войти
+        </button>
 </header>
 
 <main class="container">
@@ -29,9 +30,20 @@
     <div class="search-box">
         <input type="text" placeholder="Поиск книг по названию, автору или коду...">
     </div>
-
+<div class="catalog">
+    {% for book in all_books %}
+        <div class="book-item">
+            <h3>{{ book.title }}</h3>
+            <p>Автор: {{ book.author }}</p>
+            <p>Статус: {{ book.get_status_display }}</p>
+            <!-- другие поля по желанию -->
+        </div>
+    {% empty %}
+        <p>В библиотеке нет книг</p>
+    {% endfor %}
+</div>
     <div class="stats">
-        Всего книг: <b>0</b> · Доступно: <b>0</b> · На руках: <b>0</b>
+        Всего книг: <b>{{ total_books }}</b> · Доступно: <b>{{ available_books }}</b> · На руках: <b>{{ on_loan_books }}</b>
     </div>
 </main>
 
