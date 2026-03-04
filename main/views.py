@@ -31,7 +31,7 @@ def login_view(request):
             login(request, user)
             return redirect('dashboard')
         else:
-            print(form.errors)  # посмотрите в консоль сервера
+            print(form.errors)
     else:
         form = EmailAuthenticationForm()
     return render(request, 'login.html', {'form': form})
@@ -77,7 +77,6 @@ def Chitatel(request):
     return render(request, 'Chitatel.html', context)
 
 
-@login_required
 def request_book(request, book_id):
     if request.user.role != User.Roles.READER:
         book = get_object_or_404(Book, book_id=book_id)
@@ -108,3 +107,12 @@ def request_book(request, book_id):
             messages.error(request, f'Книга "{book.title}" сейчас недоступна.')
 
         return redirect('Chitatel')
+        
+        #temporary
+@login_required
+def librarian(request):
+    return render(request, 'librarian.html')
+        
+        #temporary
+def administrator(request):
+    return render(request, 'admin.html')

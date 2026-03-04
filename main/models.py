@@ -114,8 +114,7 @@ class User(AbstractUser):
         error_messages={
             'unique': 'Пользователь с таким email уже существует.',
         },)
-    # No need to redefine first_name, last_name, email, password – they come from AbstractUser
-
+    
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"

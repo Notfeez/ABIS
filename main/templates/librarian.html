@@ -5,8 +5,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>АБИС — Библиотекарь</title>
+    {% load static %}
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/main/static/main/css/admin.css">
+<link rel="stylesheet" href="{% static 'main/css/librarian.css' %}">
 </head>
 <body>
 
@@ -24,10 +25,6 @@
       <h1>АБИС — Библиотека</h1>
       <p>Панель Библиотекаря</p>
     </div>
-  </div>
-
-  <div class="header-center">
-    Книг: <span>150</span> &nbsp;•&nbsp; Пользователей: <span>3</span> &nbsp;•&nbsp; Выдач: <span>120</span>
   </div>
 
   <div class="header-right">

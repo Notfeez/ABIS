@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<!-- REBUILT -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>АБИС — Панель администратора</title>
+    {% load static %}
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/main/static/main/css/admin.css">
+<link rel="stylesheet" href="{% static 'main/css/admin.css' %}">
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
   <div class="logo">
     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -24,10 +23,6 @@
       <h1>АБИС — Библиотека</h1>
       <p>Панель администратора</p>
     </div>
-  </div>
-
-  <div class="header-center">
-    Книг: <span>150</span> &nbsp;•&nbsp; Пользователей: <span>3</span> &nbsp;•&nbsp; Выдач: <span>120</span>
   </div>
 
   <div class="header-right">
