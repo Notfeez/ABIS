@@ -30,6 +30,9 @@
     <div class="search-box">
         <input type="text" placeholder="Поиск книг по названию, автору или коду...">
     </div>
+    <div class="stats">
+        Всего книг: <b>{{ total_books }}</b> · Доступно: <b>{{ available_books }}</b> · На руках: <b>{{ on_loan_books }}</b>
+    </div>
 <div class="catalog">
     {% for book in all_books %}
         <div class="book-item">
@@ -41,9 +44,7 @@
         <p>В библиотеке нет книг</p>
     {% endfor %}
 </div>
-    <div class="stats">
-        Всего книг: <b>{{ total_books }}</b> · Доступно: <b>{{ available_books }}</b> · На руках: <b>{{ on_loan_books }}</b>
-    </div>
+
 </main>
 
 
