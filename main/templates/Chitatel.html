@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>АБИС — Библиотека</title>
     {% load static %}
+    <script src="{% static 'main/js/reader.js' %}" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'main/css/Chitatel.css' %}">
 </head>
@@ -30,7 +31,7 @@
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
             </svg>
-            {{ user.first_name }} {{ user.last_name }}  <!-- динамическое имя -->
+            {{ user.first_name }} {{ user.last_name }} 
         </div>
         <form method="post" action="{% url 'logout' %}" style="display: inline;">
             {% csrf_token %}
@@ -44,7 +45,6 @@
     </div>
 </header>
 
-<!-- NAV -->
 <nav>
     <div class="nav-tabs">
         <button class="nav-tab {% if active_tab == 'catalog' %}active{% endif %}" data-tab="catalog">Каталог</button>
@@ -54,7 +54,6 @@
     </div>
 </nav>
 
-<!-- MAIN -->
 <main>
       {% if messages %}
         <div class="messages">
@@ -73,8 +72,8 @@
                placeholder="Поиск книг по названию, автору или коду..." oninput="filterBooks()">
     </div>
 
-    <div class="stats" id="statsLine">
-        Всего книг: <span>{{ total_books }}</span> • Доступно: <span>{{ available_books }}</span> • На руках: <span>{{ on_loan_books }}</span>
+    <div class="stats">
+        Всего книг: <b>{{ total_books }}</b> · Доступно: <b>{{ available_books }}</b> · На руках: <b>{{ on_loan_books }}</b>
     </div>
 
     <div class="filter-chips">
@@ -84,66 +83,33 @@
         <button class="chip" data-filter="unavailable">Недоступные</button>
     </div>
 
-    <!-- Контейнер для списка книг -->
     <div class="books-grid" id="booksContainer">
     {% if active_tab == 'my_books' %}
         {% for loan in my_books %}
-            <div class="book-card">
-                <h3>{{ loan.book.title }}</h3>
-                <p>{{ loan.book.author }}</p>
-                <p>Взята: {{ loan.borrow_date }}</p>
-                <p>Срок возврата: {{ loan.due_date }}</p>
-                {% if loan.is_overdue %}
-                    <p class="overdue">Просрочена!</p>
-                {% endif %}
-            </div>
+    <div class="book-card" data-status="{{ loan.book.status }}">
+        <h3>{{ loan.book.title }}</h3>
+        <p>{{ loan.book.author }}</p>
+        <p>Взята: {{ loan.borrow_date }}</p>
+        <p>Срок возврата: {{ loan.due_date }}</p>
+        {% if loan.is_overdue %}
+            <p class="overdue">Просрочена!</p>
+        {% endif %}
+    </div>
         {% empty %}
             <p>У вас нет взятых книг.</p>
         {% endfor %}
     {% else %}
-        {% for book in all_books %}
-            ... (обычный вывод книги)
-        {% endfor %}
+    {% for book in all_books %}
+    <div class="book-item" data-status="{{ book.status }}">
+        <h3>{{ book.title }}</h3>
+        <p>Автор: {{ book.author }}</p>
+        <p>Статус: {{ book.get_status_display }}</p>
+    </div>
+    {% empty %}
+        <p>В библиотеке нет книг</p>
+    {% endfor %}
     {% endif %}
 </div>
 </main>
-
-<script>
-    function filterBooks() {
-        const searchText = document.getElementById('searchInput').value.toLowerCase();
-        const activeFilter = document.querySelector('.chip.active')?.dataset.filter || 'all';
-        const books = document.querySelectorAll('.book-card');
-        books.forEach(book => {
-            const title = book.querySelector('h3').innerText.toLowerCase();
-            const author = book.querySelector('p').innerText.toLowerCase();
-            const status = book.dataset.status;
-            let matchesSearch = title.includes(searchText) || author.includes(searchText);
-            let matchesFilter = true;
-            if (activeFilter === 'available') matchesFilter = (status === 'available');
-            else if (activeFilter === 'issued') matchesFilter = (status === 'on_loan');
-            else if (activeFilter === 'unavailable') matchesFilter = (status === 'reserved');
-            book.style.display = (matchesSearch && matchesFilter) ? 'block' : 'none';
-        });
-    }
-
-    // Переключение вкладок (можно через сервер или клиент)
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            // Здесь можно сделать перезагрузку страницы с параметром, либо AJAX
-            // Для простоты используем ссылки на ту же страницу с GET-параметром
-            const tabName = this.dataset.tab;
-            window.location.href = "?tab=" + tabName;
-        });
-    });
-
-    document.querySelectorAll('.chip').forEach(chip => {
-        chip.addEventListener('click', function() {
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            filterBooks();
-        });
-    });
-</script>
-
 </body>
 </html>

@@ -15,12 +15,23 @@ def index(request):
     available_books = Book.objects.filter(status='available').count()
     on_loan_books = Book.objects.filter(status='on_loan').count()
     all_books = Book.objects.all()
+    books = Book.objects.all()
+    from django.db.models import Q
+    
+    query = request.GET.get('q', '')
+    if query:
+        books = books.filter(
+            Q(title__icontains=query) |
+            Q(author__icontains=query) |
+            Q(isbn__icontains=query)
+        )
 
     return render(request, 'NotRegister.html', {
         'total_books': total_books,
         'available_books': available_books,
         'on_loan_books': on_loan_books,
-        'all_books' : all_books,
+        'all_books' : books,
+        'query': query,
     })
 
 def login_view(request):
@@ -28,7 +39,7 @@ def login_view(request):
         form = EmailAuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            login(request, user)
+            login(request, user) 
             return redirect('dashboard')
         else:
             print(form.errors)
@@ -55,7 +66,7 @@ def dashboard(request):
     if request.user.role == User.Roles.LIBRARIAN:
         return render(request, 'librarian.html')
     else:  
-        return render(request, 'Chitatel.html')
+        return Chitatel(request)
     
 @login_required
 def Chitatel(request):
@@ -64,17 +75,17 @@ def Chitatel(request):
     on_loan_books = Book.objects.filter(status='on_loan').count()
     all_books = Book.objects.all()
     my_books = Loan.objects.filter(reader=request.user, return_date__isnull=True).select_related('book')
+  
     
     active_tab = request.GET.get('tab', 'catalog')
-    context = {
+    return render(request, 'Chitatel.html', {
         'total_books': total_books,
         'available_books': available_books,
         'on_loan_books': on_loan_books,
         'all_books': all_books,
         'my_books': my_books,
         'active_tab': active_tab,
-    }
-    return render(request, 'Chitatel.html', context)
+    })
 
 
 def request_book(request, book_id):

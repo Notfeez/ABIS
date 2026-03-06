@@ -27,7 +27,7 @@ class CustomUserCreationForm(UserCreationForm):
         user.last_name = self.cleaned_data['last_name']
         user.email = self.cleaned_data['email']
         # Генерация username из email
-        base_username = self.cleaned_data['email'].split('@')[0]
+        base_username = self.cleaned_data['email']
         username = base_username
         counter = 1
         while User.objects.filter(username=username).exists():

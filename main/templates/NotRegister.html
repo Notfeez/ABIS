@@ -5,6 +5,7 @@
     <title>АБИС — Библиотека</title>
     {% load static %}
     <link rel="stylesheet" href="{% static '/main/css/NotRegister.css' %}">
+    <script src="{% static 'main/js/reader.js' %}" defer></script>
 </head>
 <body>
     <header class="header">
@@ -22,30 +23,35 @@
         </button>
 </header>
 
-<main class="container">
+    <main class="container">
+        <h1 class="title_main">Каталог книг</h1>
+        <p class="subtitle_main">Войдите или зарегистрируйтесь для запроса книг из библиотеки</p>
 
-    <h1 class="title_main">Каталог книг</h1>
-    <p class="subtitle_main">Войдите или зарегистрируйтесь для запроса книг из библиотеки</p>
-
-    <div class="search-box">
-        <input type="text" placeholder="Поиск книг по названию, автору или коду...">
-    </div>
-    <div class="stats">
-        Всего книг: <b>{{ total_books }}</b> · Доступно: <b>{{ available_books }}</b> · На руках: <b>{{ on_loan_books }}</b>
-    </div>
-<div class="catalog">
-    {% for book in all_books %}
-        <div class="book-item">
-            <h3>{{ book.title }}</h3>
-            <p>Автор: {{ book.author }}</p>
-            <p>Статус: {{ book.get_status_display }}</p>
+        <div class="search-box">
+            <form method="get" action="">
+                <input type="text" name="q" id="searchInput" placeholder="Поиск книг по названию, автору или коду..." value="{{ query }}" oninput="filterBooks()">
+                <button type="submit" style="display: none;">Найти</button>
+            </form>
         </div>
-    {% empty %}
-        <p>В библиотеке нет книг</p>
-    {% endfor %}
-</div>
 
-</main>
+        <div class="stats">
+            Всего книг: <b>{{ total_books }}</b> · Доступно: <b>{{ available_books }}</b> · На руках: <b>{{ on_loan_books }}</b>
+        </div>
+        <div class="catalog" id="booksContainer">
+            {% for book in all_books %}
+                <!-- Добавляем data-status -->
+                <div class="book-item" data-status="{{ book.status }}">
+                    <h3>{{ book.title }}</h3>
+                    <p>Автор: {{ book.author }}</p>
+                    <p>Статус: {{ book.get_status_display }}</p>
+                </div>
+            {% empty %}
+                <p>В библиотеке нет книг</p>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>
 
 
 </body>
