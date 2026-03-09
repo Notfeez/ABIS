@@ -1,48 +1,147 @@
-function filterBooks() {
-    const searchText = document.getElementById('searchInput')?.value.toLowerCase() || '';
-    const activeFilter = document.querySelector('.chip.active')?.dataset.filter || 'all';
-    // Ищем все карточки книг (и .book-item, и .book-card)
-    const books = document.querySelectorAll('.book-item, .book-card');
+(function() {
+    'use strict';
+
+    // ============================================================================
+    // TAB SWITCHING
+    // ============================================================================
     
-    books.forEach(book => {
-        const title = book.querySelector('h3')?.innerText.toLowerCase() || '';
-        const authorElem = book.querySelector('p');
-        const author = authorElem ? authorElem.innerText.toLowerCase() : '';
-        const status = book.dataset.status;
-        
-        let matchesSearch = title.includes(searchText) || author.includes(searchText);
-        let matchesFilter = true;
-        
-        if (activeFilter === 'available') matchesFilter = (status === 'available');
-        else if (activeFilter === 'issued') matchesFilter = (status === 'on_loan');
-        else if (activeFilter === 'unavailable') matchesFilter = (status === 'reserved');
-        
-        book.style.display = (matchesSearch && matchesFilter) ? 'block' : 'none';
-    });
-}
+    function initTabs() {
+        const tabs = document.querySelectorAll('.nav-tab');
+        const contents = document.querySelectorAll('.tab-content');
 
-// Переключение вкладок (только если они есть на странице)
-if (document.querySelector('.nav-tab')) {
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            const tabName = this.dataset.tab;
-            window.location.href = "?tab=" + tabName;
+        function switchTab(tabId) {
+            // Hide all tabs
+            contents.forEach(c => c.classList.remove('active'));
+            
+            // Show selected tab
+            const activeContent = document.getElementById(tabId);
+            if (activeContent) {
+                activeContent.classList.add('active');
+                // Update URL without page reload
+                const url = new URL(window.location);
+                url.searchParams.set('tab', tabId);
+                window.history.replaceState({}, '', url);
+            }
+
+            // Update button states
+            tabs.forEach(btn => btn.classList.remove('active'));
+            const activeBtn = Array.from(tabs).find(btn => btn.dataset.tab === tabId);
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+
+        tabs.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchTab(btn.dataset.tab);
+            });
         });
-    });
-}
 
-// Переключение фильтров (чипсы)
-if (document.querySelector('.chip')) {
-    document.querySelectorAll('.chip').forEach(chip => {
-        chip.addEventListener('click', function() {
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            filterBooks();
+        // Initialize with current tab from URL
+        const currentTab = new URLSearchParams(window.location.search).get('tab') || 'catalog';
+        switchTab(currentTab);
+    }
+
+    // ============================================================================
+    // SEARCH & FILTER
+    // ============================================================================
+    
+    function initSearch() {
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return;
+
+        searchInput.addEventListener('input', filterBooks);
+    }
+
+    function filterBooks() {
+        const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+        const books = document.querySelectorAll('.book-item');
+        
+        books.forEach(book => {
+            const title = book.querySelector('h3')?.textContent.toLowerCase() || '';
+            const author = book.querySelector('.book-author')?.textContent.toLowerCase() || '';
+            const isbn = book.querySelector('.book-isbn')?.textContent.toLowerCase() || '';
+            
+            const matches = title.includes(searchTerm) || 
+                          author.includes(searchTerm) || 
+                          isbn.includes(searchTerm);
+            
+            book.style.display = matches ? 'block' : 'none';
         });
-    });
-}
+    }
 
-// При загрузке страницы вешаем обработчик на поле поиска (если есть)
-if (document.getElementById('searchInput')) {
-    document.getElementById('searchInput').addEventListener('input', filterBooks);
-}
+    // ============================================================================
+    // FILTER BY STATUS
+    // ============================================================================
+    
+    function initStatusFilter() {
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                // Remove active from all chips
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                // Add active to clicked chip
+                e.target.classList.add('active');
+                
+                filterByStatus(e.target.dataset.filter);
+            });
+        });
+    }
+
+    function filterByStatus(status) {
+        const items = document.querySelectorAll('[data-status]');
+        
+        items.forEach(item => {
+            let show = false;
+            
+            if (status === 'all') {
+                show = true;
+            } else if (status === 'available' && item.dataset.status === 'available') {
+                show = true;
+            } else if (status === 'issued' && item.dataset.status === 'on_loan') {
+                show = true;
+            } else if (status === 'unavailable' && (item.dataset.status === 'reserved' || item.dataset.status === 'on_loan')) {
+                show = true;
+            }
+            
+            item.style.display = show ? 'block' : 'none';
+        });
+    }
+
+    // ============================================================================
+    // TOAST NOTIFICATIONS
+    // ============================================================================
+    
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // ============================================================================
+    // INITIALIZATION
+    // ============================================================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize all features
+        initTabs();
+        initSearch();
+        initStatusFilter();
+        
+        // Show initial filter state
+        filterByStatus('all');
+        
+        // Expose functions globally for inline handlers
+        window.filterBooks = filterBooks;
+        window.showToast = showToast;
+    });
+
+})();

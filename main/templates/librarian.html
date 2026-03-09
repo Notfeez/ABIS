@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<!-- REBUILT -->
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>АБИС — Библиотекарь</title>
-    {% load static %}
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'main/css/librarian.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>АБИС — Библиотекарь</title>
+  {% load static %}
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'main/css/librarian.css' %}">
+  <script src="{% static 'main/js/librarian.js' %}" defer></script>
 </head>
 <body>
 
 <!-- HEADER -->
-<header>
+<header class="header">
   <div class="logo">
     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="40" height="40" rx="10" fill="#155DFC"/>
@@ -32,114 +32,279 @@
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
       </svg>
-      Библиотекарь Иванова А.С.
+      <span>{{ user.first_name }} {{ user.last_name }}</span>
     </div>
     <span class="role-badge">Библиотекарь</span>
-    <button class="logout-btn">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-      </svg>
-      Выйти
-    </button>
+    <form method="post" action="{% url 'logout' %}" style="display: inline;">
+      {% csrf_token %}
+      <button type="submit" class="logout-btn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+        Выйти
+      </button>
+    </form>
   </div>
 </header>
 
-<!-- NAV -->
-<div class="nav-wrapper">
+<!-- NAVIGATION -->
+<nav class="nav-wrapper">
   <div class="nav-tabs">
-    <button class="nav-tab" data-tab="issuances" onclick="switchTab('issuances')">Выдачи</button>
-    <button class="nav-tab" data-tab="catalog"   onclick="switchTab('catalog')">Каталог</button>
-    <button class="nav-tab" data-tab="settings"  onclick="switchTab('settings')">Настройки</button>
+    <button class="nav-tab active" data-tab="issuances" onclick="switchTab('issuances')">Выдачи</button>
+    <button class="nav-tab" data-tab="catalog" onclick="switchTab('catalog')">Каталог</button>
+    <button class="nav-tab" data-tab="settings" onclick="switchTab('settings')">Настройки</button>
   </div>
-</div>
+</nav>
 
-<!-- MAIN -->
-<main>
+<!-- MAIN CONTENT -->
+<main class="main-content">
+  {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
 
   <!-- TAB: ISSUANCES -->
-  <div class="tab-content" id="tab-issuances">
-    <div class="section-title">Активные выдачи</div>
-    <div class="section-sub" id="issuances-count">Всего: 0</div>
-    <div id="issuances-list"></div>
-  </div>
+  <div class="tab-content active" id="tab-issuances">
+    <div class="page-header">
+      <div class="page-icon">
+        <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+      </div>
+      <div class="page-header-text">
+        <h2>Управление выдачами</h2>
+        <p>Ожидающие запросы и активные аренды</p>
+      </div>
+    </div>
 
+    <!-- PENDING REQUESTS SECTION -->
+    <div class="block-wrapper">
+      <div class="block-header">
+        <h3 class="block-title">Ожидающие запросы</h3>
+        <span class="block-count">{{ pending_requests|length }}</span>
+      </div>
+      <div class="block-content">
+        {% if pending_requests %}
+          <div class="cards-list">
+            {% for req in pending_requests %}
+              <div class="request-card" onclick="toggleCardDetails(event)">
+                <div class="card-header">
+                  <div class="card-icon-book">
+                    <svg width="24" height="24" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                  </div>
+                  <div class="card-header-text">
+                    <div class="card-title">{{ req.book.title }}</div>
+                    <div class="card-author">{{ req.book.author }}</div>
+                  </div>
+                  <span class="expand-icon">⌄</span>
+                </div>
+                <div class="card-details" style="display: none;">
+                  <div class="detail-row">
+                    <span class="detail-label">Читатель:</span>
+                    <span class="detail-value">{{ req.reader.email }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Дата запроса:</span>
+                    <span class="detail-value">{{ req.request_date|date:"d.m.Y H:i" }}</span>
+                  </div>
+                  <div class="card-actions">
+                    <a href="{% url 'approve_request' req.request_id %}" class="btn btn-approve">Одобрить</a>
+                    <a href="{% url 'reject_request' req.request_id %}" class="btn btn-reject">Отклонить</a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <p>Нет ожидающих запросов</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ACTIVE LOANS SECTION -->
+    <div class="block-wrapper">
+      <div class="block-header">
+        <h3 class="block-title">Активные выдачи</h3>
+        <span class="block-count">{{ active_loans|length }}</span>
+      </div>
+      <div class="block-content">
+        {% if active_loans %}
+          <div class="cards-list">
+            {% for loan in active_loans %}
+              <div class="loan-card {% if loan.is_overdue %}overdue{% endif %} expanded" onclick="toggleCardDetails(event)">
+                <div class="card-header">
+                  <div class="card-icon-book">
+                    <svg width="24" height="24" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                  </div>
+                  <div class="card-header-text">
+                    <div class="card-title">{{ loan.book.title }}</div>
+                    <div class="card-author">{{ loan.book.author }}</div>
+                  </div>
+                  {% if loan.is_overdue %}
+                    <span class="overdue-badge">Просрочена</span>
+                  {% endif %}
+                </div>
+                <div class="card-details">
+                  <div class="detail-row">
+                    <span class="detail-label">Читатель:</span>
+                    <span class="detail-value">{{ loan.reader.email }}</span>
+                    <span class="detail-value">{{ loan.reader.first_name }} {{ loan.reader.last_name }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Дата выдачи:</span>
+                    <span class="detail-value">{{ loan.borrow_date|date:"d.m.Y" }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Срок возврата:</span>
+                    <span class="detail-value {% if loan.is_overdue %}is-overdue{% endif %}">{{ loan.due_date|date:"d.m.Y" }}</span>
+                  </div>
+                  {% if loan.is_overdue %}
+                    <div class="detail-row">
+                      <span class="detail-label">Просрочено на:</span>
+                      <span class="detail-value is-overdue">{{ loan.days_overdue }} дней</span>
+                    </div>
+                  {% endif %}
+                  <button class="btn btn-primary full-width" onclick="showToast('Функция возврата в разработке')">Отметить возврат</button>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <p>Нет активных выдач</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
   <!-- TAB: CATALOG -->
   <div class="tab-content" id="tab-catalog">
     <div class="page-header">
-      <div class="page-icon blue">
-        <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="1.8" viewBox="0 0 24 24">
+      <div class="page-icon">
+        <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
         </svg>
       </div>
       <div class="page-header-text">
         <h2>Каталог книг</h2>
-        <p>Управление книжным фондом</p>
+                <a href="{% url 'export_books_csv' %}" class="btn btn-primary" style="padding: 8px 16px;">
+            📥 Экспорт в CSV
+        </a>
+        <p>Книжный фонд библиотеки — {{ books|length }} книг</p>
       </div>
     </div>
-    <p style="color:var(--muted);text-align:center;padding:60px 0;font-size:15px">Раздел в разработке</p>
+
+    <div class="catalog-wrapper">
+      {% if books %}
+        <div class="books-grid">
+          {% for book in books %}
+            <div class="book-item">
+              <div class="book-item-header">
+                <h4 class="book-title">{{ book.title }}</h4>
+              </div>
+              <div class="book-details">
+                <div class="detail-row">
+                  <span class="detail-label">Автор:</span>
+                  <span class="detail-value">{{ book.author }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">ISBN:</span>
+                  <span class="detail-value">{{ book.isbn|default:"—" }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Статус:</span>
+                  <span class="status-badge {% if book.status == 'available' %}status-available{% elif book.status == 'on_loan' %}status-on-loan{% else %}status-reserved{% endif %}">
+                    {% if book.status == 'available' %}
+                      Доступна
+                    {% elif book.status == 'on_loan' %}
+                      В аренде
+                    {% else %}
+                      Зарезервирована
+                    {% endif %}
+                  </span>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding: 80px 40px;">
+          <p>Книги еще не добавлены в каталог</p>
+        </div>
+      {% endif %}
+    </div>
   </div>
 
   <!-- TAB: SETTINGS -->
   <div class="tab-content" id="tab-settings">
     <div class="page-header">
-      <div class="page-icon gray">
-        <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="1.8" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
+      <div class="page-icon">
+        <svg width="20" height="20" fill="none" stroke="#6b7280" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.592c.55 0 1.02.398 1.11.94m-.213 9.526c.106.606.481 1.13.97 1.53m.676 2.4a5 5 0 11-10 0 5 5 0 0110 0z"/>
         </svg>
       </div>
       <div class="page-header-text">
-        <h2>Настройки пользователя</h2>
-        <p>Управление аккаунтом</p>
+        <h2>Параметры аккаунта</h2>
+        <p>Управление профилем и безопасностью</p>
       </div>
     </div>
 
-    <!-- Change password -->
-    <div class="settings-block">
-      <div class="settings-block-header">
-        <div class="settings-icon purple">🔑</div>
-        <div class="settings-block-header-text">
-          <strong>Смена пароля</strong>
-          <span>Обновите пароль для входа</span>
+    <div class="settings-container">
+      <!-- PASSWORD SECTION -->
+      <div class="settings-card-large">
+        <div class="settings-card-header">
+          <div class="settings-card-icon">🔐</div>
+          <div class="settings-card-title">Изменить пароль</div>
         </div>
+        <div class="settings-card-description">Обновите пароль для безопасного доступа к вашему аккаунту</div>
+        <div class="form-group-large">
+          <label for="pwd-current" class="form-label">Текущий пароль</label>
+          <input type="password" id="pwd-current" class="form-input-large" placeholder="Введите текущий пароль">
+        </div>
+        <div class="form-group-large">
+          <label for="pwd-new" class="form-label">Новый пароль</label>
+          <input type="password" id="pwd-new" class="form-input-large" placeholder="Введите новый пароль">
+        </div>
+        <div class="form-group-large">
+          <label for="pwd-confirm" class="form-label">Подтверждение пароля</label>
+          <input type="password" id="pwd-confirm" class="form-input-large" placeholder="Повторите новый пароль">
+        </div>
+        <button class="btn btn-primary btn-large" onclick="savePassword()">Сохранить пароль</button>
       </div>
-      <label class="form-label">Текущий пароль</label>
-      <input class="form-input" id="pwd-current" type="password" placeholder="Введите текущий пароль">
-      <label class="form-label">Новый пароль</label>
-      <input class="form-input" id="pwd-new" type="password" placeholder="Введите новый пароль">
-      <label class="form-label">Подтвердите пароль</label>
-      <input class="form-input" id="pwd-confirm" type="password" placeholder="Повторите новый пароль">
-      <button class="btn btn-dark" onclick="savePassword()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-        </svg>
-        Сохранить пароль
-      </button>
-    </div>
 
-    <!-- Change email -->
-    <div class="settings-block">
-      <div class="settings-block-header">
-        <div class="settings-icon pink">✉️</div>
-        <div class="settings-block-header-text">
-          <strong>Смена email</strong>
-          <span>Обновите адрес электронной почты</span>
+      <!-- EMAIL SECTION -->
+      <div class="settings-card-large">
+        <div class="settings-card-header">
+          <div class="settings-card-icon">✉️</div>
+          <div class="settings-card-title">Изменить email</div>
         </div>
+        <div class="settings-card-description">Обновите адрес электронной почты для своего аккаунта</div>
+        <div class="form-group-large">
+          <label for="current-email" class="form-label">Текущий email</label>
+          <input type="email" id="current-email" class="form-input-large" value="{{ user.email }}" disabled>
+        </div>
+        <div class="form-group-large">
+          <label for="new-email" class="form-label">Новый email</label>
+          <input type="email" id="new-email" class="form-input-large" placeholder="example@mail.ru">
+        </div>
+        <button class="btn btn-primary btn-large" onclick="saveEmail()">Сохранить email</button>
       </div>
-      <label class="form-label">Новый email</label>
-      <input class="form-input" id="new-email" type="email" placeholder="example@university.edu">
-      <button class="btn btn-dark" onclick="saveEmail()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-        </svg>
-        Сохранить email
-      </button>
     </div>
   </div>
-
 </main>
 
-<!-- TOAST -->
+<!-- TOAST NOTIFICATION -->
 <div class="toast" id="toast"></div>
 
 </body>
+</html>
 </html>

@@ -45,17 +45,19 @@
     </div>
 </header>
 
+<!-- NAVIGATION -->
 <nav>
     <div class="nav-tabs">
-        <button class="nav-tab {% if active_tab == 'catalog' %}active{% endif %}" data-tab="catalog">Каталог</button>
-        <button class="nav-tab {% if active_tab == 'my_books' %}active{% endif %}" data-tab="my_books">Мои книги</button>
-        <button class="nav-tab {% if active_tab == 'my_requests' %}active{% endif %}" data-tab="my_requests">Мои запросы</button>
-        <button class="nav-tab {% if active_tab == 'settings' %}active{% endif %}" data-tab="settings">Настройки</button>
+        <button class="nav-tab {% if active_tab == 'catalog' %}active{% endif %}" data-tab="catalog">📚 Каталог</button>
+        <button class="nav-tab {% if active_tab == 'my_books' %}active{% endif %}" data-tab="my_books">📖 Мои книги</button>
+        <button class="nav-tab {% if active_tab == 'my_requests' %}active{% endif %}" data-tab="my_requests">📋 Мои запросы</button>
+        <button class="nav-tab {% if active_tab == 'settings' %}active{% endif %}" data-tab="settings">⚙️ Настройки</button>
     </div>
 </nav>
 
+<!-- MAIN CONTENT -->
 <main>
-      {% if messages %}
+    {% if messages %}
         <div class="messages">
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}">
@@ -64,52 +66,246 @@
             {% endfor %}
         </div>
     {% endif %}
-    <div class="search-wrap">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
-        </svg>
-        <input class="search-input" id="searchInput" type="text"
-               placeholder="Поиск книг по названию, автору или коду..." oninput="filterBooks()">
-    </div>
 
+    <!-- STATISTICS -->
     <div class="stats">
-        Всего книг: <b>{{ total_books }}</b> · Доступно: <b>{{ available_books }}</b> · На руках: <b>{{ on_loan_books }}</b>
+        <div class="stat-item">
+            <span class="stat-label">Всего книг</span>
+            <span class="stat-value">{{ total_books }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Доступно</span>
+            <span class="stat-value available">{{ available_books }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">На руках</span>
+            <span class="stat-value issued">{{ on_loan_books }}</span>
+        </div>
     </div>
 
-    <div class="filter-chips">
-        <button class="chip active" data-filter="all">Все</button>
-        <button class="chip" data-filter="available">Доступные</button>
-        <button class="chip" data-filter="issued">Выданные</button>
-        <button class="chip" data-filter="unavailable">Недоступные</button>
+    <!-- TAB CONTENT -->
+    
+    <!-- CATALOG TAB -->
+    <div id="catalog" class="tab-content {% if active_tab == 'catalog' %}active{% endif %}">
+        <div class="tab-header">
+            <h2>Каталог Библиотеки</h2>
+            <div class="search-wrap">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input class="search-input" id="searchInput" type="text"
+                       placeholder="Поиск по названию, автору или коду..." oninput="filterBooks()">
+            </div>
+        </div>
+
+        <div class="filter-chips">
+            <button class="chip active" data-filter="all">Все</button>
+            <button class="chip" data-filter="available">Доступные</button>
+            <button class="chip" data-filter="issued">Выданные</button>
+            <button class="chip" data-filter="unavailable">Недоступные</button>
+        </div>
+
+        <div class="books-grid" id="booksContainer">
+            {% if all_books %}
+                {% for book in all_books %}
+                <div class="book-item" data-status="{{ book.status }}">
+                    <div class="book-header">
+                        <h3>{{ book.title }}</h3>
+                        {% if book.status == 'available' %}
+                            <span class="status-badge available">Доступна</span>
+                        {% elif book.status == 'on_loan' %}
+                            <span class="status-badge issued">На руках</span>
+                        {% else %}
+                            <span class="status-badge reserved">Зарезервирована</span>
+                        {% endif %}
+                    </div>
+                    <p class="book-author">{{ book.author }}</p>
+                    <p class="book-isbn">ISBN: {{ book.isbn|default:"—" }}</p>
+                    
+                    {% if book.status == 'available' %}
+                        <form method="post" action="{% url 'request_book' book.book_id %}" style="margin-top: 12px;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-request">Запросить книгу</button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-unavailable" disabled>Недоступна</button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>В каталоге нет книг</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
 
-    <div class="books-grid" id="booksContainer">
-    {% if active_tab == 'my_books' %}
-        {% for loan in my_books %}
-    <div class="book-card" data-status="{{ loan.book.status }}">
-        <h3>{{ loan.book.title }}</h3>
-        <p>{{ loan.book.author }}</p>
-        <p>Взята: {{ loan.borrow_date }}</p>
-        <p>Срок возврата: {{ loan.due_date }}</p>
-        {% if loan.is_overdue %}
-            <p class="overdue">Просрочена!</p>
-        {% endif %}
+    <!-- MY BOOKS TAB -->
+    <div id="my_books" class="tab-content {% if active_tab == 'my_books' %}active{% endif %}">
+        <div class="tab-header">
+            <h2>Мои Книги</h2>
+        </div>
+
+        <div class="books-grid">
+            {% if my_books %}
+                {% for loan in my_books %}
+                <div class="book-card {% if loan.is_overdue %}overdue{% endif %}">
+                    <div class="card-header">
+                        <div>
+                            <h3>{{ loan.book.title }}</h3>
+                            <p class="card-author">{{ loan.book.author }}</p>
+                        </div>
+                        {% if loan.is_overdue %}
+                            <div class="overdue-badge">ПРОСРОЧЕНА</div>
+                        {% endif %}
+                    </div>
+                    <div class="card-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Взята:</span>
+                            <span class="detail-value">{{ loan.borrow_date|date:"d.m.Y" }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Срок возврата:</span>
+                            <span class="detail-value {% if loan.is_overdue %}overdue-text{% endif %}">
+                                {{ loan.due_date|date:"d.m.Y" }}
+                                {% if loan.is_overdue %}
+                                    <span class="days-overdue">(на {{ loan.days_overdue }} дн.)</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <p class="card-note">ℹ️ Книгу нужно вернуть в библиотеку в установленный срок</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>У вас нет взятых книг</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
-        {% empty %}
-            <p>У вас нет взятых книг.</p>
-        {% endfor %}
-    {% else %}
-    {% for book in all_books %}
-    <div class="book-item" data-status="{{ book.status }}">
-        <h3>{{ book.title }}</h3>
-        <p>Автор: {{ book.author }}</p>
-        <p>Статус: {{ book.get_status_display }}</p>
+
+    <!-- MY REQUESTS TAB -->
+    <div id="my_requests" class="tab-content {% if active_tab == 'my_requests' %}active{% endif %}">
+        <div class="tab-header">
+            <h2>Мои Запросы</h2>
+        </div>
+
+        <div class="requests-list">
+            {% if my_requests %}
+                {% for req in my_requests %}
+                <div class="request-card {% if req.status == 'rejected' %}rejected{% elif req.status == 'approved' %}approved{% else %}pending{% endif %}">
+                    <div class="request-header">
+                        <div>
+                            <h3>{{ req.book.title }}</h3>
+                            <p class="request-author">{{ req.book.author }}</p>
+                        </div>
+                        <span class="status-badge {% if req.status == 'pending' %}pending{% elif req.status == 'approved' %}approved{% else %}rejected{% endif %}">
+                            {% if req.status == 'pending' %}⏳ Ожидает{% elif req.status == 'approved' %}✓ Одобрена{% else %}✗ Отклонена{% endif %}
+                        </span>
+                    </div>
+                    <div class="request-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Дата запроса:</span>
+                            <span class="detail-value">{{ req.request_date|date:"d.m.Y H:i" }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">ISBN:</span>
+                            <span class="detail-value">{{ req.book.isbn|default:"—" }}</span>
+                        </div>
+                    </div>
+                    {% if req.status == 'rejected' and req.librarian_comment %}
+                        <div class="comment-block">
+                            <span class="comment-label">Комментарий библиотекаря:</span>
+                            <p>{{ req.librarian_comment }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="request-actions">
+                        {% if req.status == 'pending' %}
+                            <form method="post" action="{% url 'cancel_request' req.request_id %}" style="flex: 1;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-cancel" onclick="return confirm('Отменить запрос на эту книгу?')">
+                                    Отменить
+                                </button>
+                            </form>
+                        {% elif req.status == 'approved' %}
+                            <span class="action-text">✓ Запрос одобрен. Заберите книгу в библиотеке!</span>
+                        {% else %}
+                            <span class="action-text">Запрос отклонён</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>📋 У вас нет запросов</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
-    {% empty %}
-        <p>В библиотеке нет книг</p>
-    {% endfor %}
-    {% endif %}
-</div>
+
+    <!-- SETTINGS TAB -->
+    <div id="settings" class="tab-content {% if active_tab == 'settings' %}active{% endif %}">
+        <div class="tab-header">
+            <h2>⚙️ Настройки</h2>
+        </div>
+
+        <div class="settings-container">
+            <!-- PROFILE SETTINGS -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3>Личная информация</h3>
+                </div>
+                <form method="post" action="{% url 'reader_profile' %}" class="settings-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="first_name">Имя</label>
+                        <input type="text" id="first_name" name="first_name" 
+                               value="{{ user.first_name }}" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Фамилия</label>
+                        <input type="text" id="last_name" name="last_name" 
+                               value="{{ user.last_name }}" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" 
+                               value="{{ user.email }}" class="form-input" disabled>
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Сохранить изменения</button>
+                </form>
+            </div>
+                    <!-- НОВЫЙ БЛОК: Смена email -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <h3>Смена email</h3>
+            </div>
+            <form method="post" action="{% url 'change_email' %}" class="settings-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="new_email">Новый email</label>
+                    <input type="email" id="new_email" name="new_email" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Сменить email</button>
+            </form>
+        </div>
+
+        <!-- НОВЫЙ БЛОК: Смена пароля (ссылка на стандартную страницу Django) -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <h3>Смена пароля</h3>
+            </div>
+            <div class="settings-info" style="padding: 20px;">
+                <p>Для смены пароля перейдите по ссылке:</p>
+                <a href="{% url 'password_change' %}" class="btn btn-primary">Сменить пароль</a>
+            </div>
+        </div>
+        </div>
+    </div>
+
 </main>
+
 </body>
 </html>

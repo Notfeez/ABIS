@@ -133,3 +133,24 @@ class User(AbstractUser):
     @property
     def is_reader(self):
         return self.role == self.Roles.READER
+    
+class Request(models.Model):
+    REQUEST_STATUS = [
+        ('pending', 'Ожидает подтверждения'),
+        ('approved', 'Подтверждён'),
+        ('rejected', 'Отклонён'),
+    ]
+    request_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    reader = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='book_requests')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='requests')
+    request_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=REQUEST_STATUS, default='pending')
+    librarian_comment = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Запрос книги"
+        verbose_name_plural = "Запросы книг"
+        ordering = ['-request_date']
+
+    def __str__(self):
+        return f"{self.reader.email} -> {self.book.title} ({self.get_status_display()})"

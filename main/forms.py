@@ -43,3 +43,13 @@ class EmailAuthenticationForm(AuthenticationForm):
     error_messages = {
         'invalid_login': "Неверный email или пароль. Попробуйте снова.",
     }
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'email': forms.EmailInput(attrs={'class': 'form-input'}),
+        }
