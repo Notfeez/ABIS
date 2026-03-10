@@ -108,16 +108,13 @@ def dashboard(request):
     
 @admin_required
 def admin_dashboard(request):
-    # Получаем все книги (без пагинации)
     books = Book.objects.all().order_by('title')
     
-    # Данные для статистики
     total_books = books.count()
     total_users = User.objects.count()
     total_loans = Loan.objects.count()
     active_loans = Loan.objects.filter(return_date__isnull=True).count()
     
-    # Список пользователей (можно тоже без пагинации, но для удобства можно оставить пагинацию)
     users_list = User.objects.all().order_by('email')
     paginator = Paginator(users_list, 20)
     page_number = request.GET.get('page')
@@ -126,8 +123,8 @@ def admin_dashboard(request):
     active_tab = request.GET.get('tab', 'users')
     
     context = {
-        'books': books,              # полный список книг
-        'users': users,               # пагинированный список пользователей (если нужно)
+        'books': books,            
+        'users': users,               
         'total_books': total_books,
         'total_users': total_users,
         'total_loans': total_loans,
@@ -464,13 +461,11 @@ def book_detail(request, book_id):
     reader_request = None
     
     if request.user.is_authenticated and request.user.role == User.Roles.READER:
-        # Check if reader has this book
         reader_loan = Loan.objects.filter(
             reader=request.user, 
             book=book, 
             return_date__isnull=True
         ).first()
-        # Check if reader has pending request
         reader_request = Request.objects.filter(
             reader=request.user,
             book=book,
@@ -504,28 +499,20 @@ def my_books_list(request):
     }
     return render(request, 'Chitatel.html', context)
 
-
-# ============================================================================
-# ADMIN FUNCTIONS
-# ============================================================================
-
 @login_required
 def admin_panel(request):
     """Главная панель администратора"""
     if request.user.role != User.Roles.ADMIN:
         messages.error(request, 'Доступ запрещён.')
         return redirect('dashboard')
-    
     active_tab = request.GET.get('tab', 'overview')
     
-    # Statistics
     total_books = Book.objects.count()
     total_users = User.objects.filter(role=User.Roles.READER).count()
     total_librarians = User.objects.filter(role=User.Roles.LIBRARIAN).count()
     total_loans = Loan.objects.count()
     overdue_loans = Loan.get_overdue_loans().count()
     
-    # Data for tabs
     all_books = Book.objects.all().order_by('title')
     all_readers = User.objects.filter(role=User.Roles.READER).all().order_by('email')
     all_librarians = User.objects.filter(role=User.Roles.LIBRARIAN).all().order_by('email')
@@ -551,11 +538,9 @@ def export_books_csv(request):
         messages.error(request, 'Доступ запрещён.')
         return redirect('dashboard')
     
-    # Create CSV response
     response = HttpResponse(content_type='text/csv; charset=utf-8')
     response['Content-Disposition'] = f'attachment; filename="books_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
     
-    # Add BOM for proper UTF-8 encoding in Excel
     response.write('\ufeff')
     
     writer = csv.writer(response)
@@ -576,16 +561,13 @@ def export_books_csv(request):
 
 @login_required
 def export_users_csv(request):
-    """Экспорт пользователей в CSV"""
     if request.user.role != User.Roles.ADMIN:
         messages.error(request, 'Доступ запрещён.')
         return redirect('dashboard')
     
-    # Create CSV response
     response = HttpResponse(content_type='text/csv; charset=utf-8')
     response['Content-Disposition'] = f'attachment; filename="users_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
     
-    # Add BOM for proper UTF-8 encoding in Excel
     response.write('\ufeff')
     
     writer = csv.writer(response)
@@ -628,7 +610,6 @@ def make_librarian(request, user_id):
 
 @login_required
 def remove_librarian(request, user_id):
-    """Снять пользователя с должности библиотекаря"""
     if request.user.role != User.Roles.ADMIN:
         messages.error(request, 'Доступ запрещён.')
         return redirect('dashboard')

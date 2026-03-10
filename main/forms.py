@@ -28,7 +28,6 @@ class CustomUserCreationForm(UserCreationForm):
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         user.email = self.cleaned_data['email']
-        # Генерация username из email
         base_username = self.cleaned_data['email']
         username = base_username
         counter = 1

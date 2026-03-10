@@ -1,26 +1,16 @@
-/**
- * Admin Dashboard JavaScript
- * Обеспечивает переключение вкладок, поиск пользователей и уведомления.
- */
-
 document.addEventListener('DOMContentLoaded', function() {
-    // --- Переключение вкладок ---
     const tabs = document.querySelectorAll('.nav-tab');
     const contents = document.querySelectorAll('.tab-content');
 
     function switchTab(tabId) {
-        // Скрыть все вкладки
         contents.forEach(content => content.classList.remove('active'));
-        // Показать выбранную
         const activeContent = document.getElementById('tab-' + tabId);
         if (activeContent) activeContent.classList.add('active');
 
-        // Обновить классы на кнопках
         tabs.forEach(btn => btn.classList.remove('active'));
         const activeBtn = Array.from(tabs).find(btn => btn.dataset.tab === tabId);
         if (activeBtn) activeBtn.classList.add('active');
 
-        // Обновить URL (параметр tab) без перезагрузки
         const url = new URL(window.location);
         url.searchParams.set('tab', tabId);
         window.history.replaceState({}, '', url);
@@ -33,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Инициализация из URL (если параметр tab передан)
     const urlParams = new URLSearchParams(window.location.search);
     const activeTabFromUrl = urlParams.get('tab');
     if (activeTabFromUrl) {
@@ -43,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- Поиск пользователей ---
     const searchInput = document.getElementById('users-search');
     if (searchInput) {
         searchInput.addEventListener('input', function() {
@@ -61,7 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- Тосты (уведомления) ---
     const toast = document.getElementById('toast');
     if (toast) {
         window.showToast = function(message, type = 'info', duration = 3000) {
@@ -82,13 +69,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }, duration);
         };
 
-        // Закрытие тоста по клику
         toast.addEventListener('click', function() {
             this.classList.remove('show');
         });
     }
 
-    // Закрытие тоста по Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && toast && toast.classList.contains('show')) {
             toast.classList.remove('show');
