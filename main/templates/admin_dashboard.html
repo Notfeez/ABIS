@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>АБИС — Администратор</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'main/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'main/css/admin.css' %}">
+    <script src="{% static 'main/js/admin.js' %}" defer></script>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="10" fill="#155DFC"/>
+            <path d="M24 14L28 28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 14V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 16V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 12V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="logo-text">
+            <h1>АБИС — Библиотека</h1>
+            <p>Панель администратора</p>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="user-info">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
+            </svg>
+            {{ user.first_name }} {{ user.last_name }}
+        </div>
+        <span class="role-badge">Администратор</span>
+        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Выйти
+            </button>
+        </form>
+    </div>
+</header>
+
+<!-- НАВИГАЦИЯ -->
+<div class="nav-wrapper">
+    <div class="nav-tabs">
+        <button class="nav-tab {% if active_tab == 'users' %}active{% endif %}" data-tab="users">👥 Пользователи</button>
+        <button class="nav-tab {% if active_tab == 'catalog' %}active{% endif %}" data-tab="catalog">📚 Каталог</button>
+        <button class="nav-tab {% if active_tab == 'data' %}active{% endif %}" data-tab="data">📊 Данные</button>
+        <button class="nav-tab {% if active_tab == 'settings' %}active{% endif %}" data-tab="settings">⚙️ Настройки</button>
+    </div>
+</div>
+
+<main>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- ВКЛАДКА ПОЛЬЗОВАТЕЛИ -->
+    <div id="tab-users" class="tab-content {% if active_tab == 'users' %}active{% endif %}">
+        <div class="page-header">
+            <div class="page-icon purple">
+                <svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 100-8 4 4 0 000 8zm6 4a3 3 0 100-6 3 3 0 000 6zM3 16a3 3 0 100-6 3 3 0 000 6z"/>
+                </svg>
+            </div>
+            <div class="page-header-text">
+                <h2>Управление пользователями</h2>
+                <p>Всего пользователей: {{ total_users }}</p>
+            </div>
+            <a href="{% url 'export_users_csv' %}" class="btn-export" style="margin-left: auto;">📥 Экспорт CSV</a>
+        </div>
+
+        <!-- Поиск пользователей -->
+        <input class="search-input" id="users-search" type="text"
+               placeholder="Поиск по имени, email или ID...">
+
+        <!-- Таблица пользователей -->
+<div class="table-wrapper">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Роль</th>
+                <th>Дата регистрации</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.email }}</td>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.last_name }}</td>
+                <td>
+                    <span class="role-badge {% if user.role == 'admin' %}admin{% elif user.role == 'librarian' %}librarian{% else %}reader{% endif %}">
+                        {{ user.get_role_display }}
+                    </span>
+                </td>
+                <td>{{ user.date_joined|date:"d.m.Y H:i" }}</td>
+                <td>
+                    {% if user.role != 'admin' %}
+                        <form method="post" action="{% url 'toggle_librarian' user.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            {% if user.role == 'librarian' %}
+                                <button type="submit" class="btn-small btn-danger" onclick="return confirm('Убрать роль библиотекаря?')">
+                                    ❌ Убрать библиотекаря
+                                </button>
+                            {% else %}
+                                <button type="submit" class="btn-small btn-success" onclick="return confirm('Назначить библиотекарем?')">
+                                    ➕ Сделать библиотекарем
+                                </button>
+                            {% endif %}
+                        </form>
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+        <!-- Пагинация -->
+        {% if users.has_other_pages %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if users.has_previous %}
+                    <a href="?page=1&tab=users">&laquo; первая</a>
+                    <a href="?page={{ users.previous_page_number }}&tab=users">предыдущая</a>
+                {% endif %}
+                <span class="current">
+                    Страница {{ users.number }} из {{ users.paginator.num_pages }}
+                </span>
+                {% if users.has_next %}
+                    <a href="?page={{ users.next_page_number }}&tab=users">следующая</a>
+                    <a href="?page={{ users.paginator.num_pages }}&tab=users">последняя &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ВКЛАДКА КАТАЛОГ -->
+    <div id="tab-catalog" class="tab-content {% if active_tab == 'catalog' %}active{% endif %}">
+        <div class="page-header">
+            <div class="page-icon blue">
+                <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+            </div>
+            <div class="page-header-text">
+                <h2>Каталог книг</h2>
+                <p>Всего книг: {{ total_books }}</p>
+            </div>
+            <a href="{% url 'export_books_csv' %}" class="btn-export" style="margin-left: auto;">📥 Экспорт CSV</a>
+        </div>
+
+        <!-- Форма добавления книги -->
+        <div class="card">
+            <div class="card-header">
+                <h3>➕ Добавить новую книгу</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'add_book' %}">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Название *</label>
+                            <input type="text" id="title" name="title" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="author">Автор *</label>
+                            <input type="text" id="author" name="author" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="isbn">ISBN</label>
+                            <input type="text" id="isbn" name="isbn" class="form-input" placeholder="978-5-12345-678-9">
+                        </div>
+                        <div class="form-group">
+                            <label for="publication_date">Дата публикации</label>
+                            <input type="date" id="publication_date" name="publication_date" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Статус</label>
+                        <select id="status" name="status" class="form-input">
+                            <option value="available">Доступна</option>
+                            <option value="on_loan">В аренде</option>
+                            <option value="reserved">Зарезервирована</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Добавить книгу</button>
+                </form>
+            </div>
+        </div>
+
+<div class="books-grid">
+    {% for book in books %}
+    <div class="book-item">
+        <div class="book-item-header">
+            <h4 class="book-title">{{ book.title }}</h4>
+        </div>
+        <div class="book-details">
+            <div class="detail-row">
+                <span class="detail-label">Автор:</span>
+                <span class="detail-value">{{ book.author }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">ISBN:</span>
+                <span class="detail-value">{{ book.isbn|default:"—" }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Статус:</span>
+                <span class="status-badge {% if book.status == 'available' %}status-available{% elif book.status == 'on_loan' %}status-on-loan{% else %}status-reserved{% endif %}">
+                    {{ book.get_status_display }}
+                </span>
+            </div>
+            {% if book.publication_date %}
+            <div class="detail-row">
+                <span class="detail-label">Год:</span>
+                <span class="detail-value">{{ book.publication_date|date:"Y" }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">Каталог пуст</div>
+    {% endfor %}
+</div>
+
+    <!-- ВКЛАДКА ДАННЫЕ -->
+    <div id="tab-data" class="tab-content {% if active_tab == 'data' %}active{% endif %}">
+        <div class="page-header">
+            <div class="page-icon gray">
+                <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="1.8" viewBox="0 0 24 24">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"/><path stroke-linecap="round" d="M3 5v14a9 3 0 0018 0V5M3 12a9 3 0 0018 0"/>
+                </svg>
+            </div>
+            <div class="page-header-text">
+                <h2>Управление данными</h2>
+                <p>Экспорт и статистика системы</p>
+            </div>
+        </div>
+
+        <!-- Блок экспорта -->
+        <div class="export-block">
+            <div class="export-block-header">Экспорт данных в CSV</div>
+            <div class="export-row">
+                <div>
+                    <div class="export-row-label">Каталог книг</div>
+                    <div class="export-row-sub">Экспорт всех книг ({{ total_books }} записей)</div>
+                </div>
+                <a href="{% url 'export_books_csv' %}" class="btn-export">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg> Экспорт
+                </a>
+            </div>
+            <div class="export-row">
+                <div>
+                    <div class="export-row-label">Пользователи</div>
+                    <div class="export-row-sub">Экспорт всех пользователей ({{ total_users }} записей)</div>
+                </div>
+                <a href="{% url 'export_users_csv' %}" class="btn-export">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg> Экспорт
+                </a>
+            </div>
+            <div class="export-row">
+                <div>
+                    <div class="export-row-label">Выдачи</div>
+                    <div class="export-row-sub">Экспорт всех выдач ({{ total_loans }} записей)</div>
+                </div>
+                <a href="{% url 'export_loans_csv' %}" class="btn-export">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg> Экспорт
+                </a>
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats-grid">
+            <div class="stat-row">
+                <div class="stat-icon blue">📚</div>
+                <div class="stat-row-text">
+                    <strong>Всего книг</strong>
+                    <span>В каталоге</span>
+                </div>
+                <div class="stat-row-num">{{ total_books }}</div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-icon purple">👥</div>
+                <div class="stat-row-text">
+                    <strong>Всего пользователей</strong>
+                    <span>Зарегистрировано</span>
+                </div>
+                <div class="stat-row-num">{{ total_users }}</div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-icon green">📋</div>
+                <div class="stat-row-text">
+                    <strong>Всего выдач</strong>
+                    <span>За всё время</span>
+                </div>
+                <div class="stat-row-num">{{ total_loans }}</div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-icon orange">📤</div>
+                <div class="stat-row-text">
+                    <strong>Активных выдач</strong>
+                    <span>Не возвращено</span>
+                </div>
+                <div class="stat-row-num">{{ active_loans }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ВКЛАДКА НАСТРОЙКИ -->
+    <div id="tab-settings" class="tab-content {% if active_tab == 'settings' %}active{% endif %}">
+        <div class="page-header">
+            <div class="page-icon gray">
+                <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+            </div>
+            <div class="page-header-text">
+                <h2>Настройки аккаунта</h2>
+                <p>Управление профилем и безопасностью</p>
+            </div>
+        </div>
+
+        <!-- Смена пароля -->
+        <div class="settings-block">
+            <div class="settings-block-header">
+                <div class="settings-icon">🔑</div>
+                <div class="settings-block-header-text">
+                    <strong>Смена пароля</strong>
+                    <span>Обновите пароль для входа</span>
+                </div>
+            </div>
+            <form method="post" action="{% url 'admin_change_password' %}">
+                {% csrf_token %}
+                <label class="form-label">Текущий пароль</label>
+                <input class="form-input" type="password" name="current_password" placeholder="Введите текущий пароль" required>
+
+                <label class="form-label">Новый пароль</label>
+                <input class="form-input" type="password" name="new_password1" placeholder="Введите новый пароль" required>
+
+                <label class="form-label">Подтвердите пароль</label>
+                <input class="form-input" type="password" name="new_password2" placeholder="Повторите новый пароль" required>
+
+                <button type="submit" class="btn btn-dark">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                    </svg>
+                    Сохранить пароль
+                </button>
+            </form>
+        </div>
+
+        <!-- Смена email -->
+        <div class="settings-block">
+            <div class="settings-block-header">
+                <div class="settings-icon">✉️</div>
+                <div class="settings-block-header-text">
+                    <strong>Смена email</strong>
+                    <span>Обновите адрес электронной почты</span>
+                </div>
+            </div>
+            <form method="post" action="{% url 'admin_change_email' %}">
+                {% csrf_token %}
+                <label class="form-label">Новый email</label>
+                <input class="form-input" type="email" name="new_email" placeholder="admin@library.edu" required>
+
+                <label class="form-label">Текущий пароль (для подтверждения)</label>
+                <input class="form-input" type="password" name="password" placeholder="Введите текущий пароль" required>
+
+                <button type="submit" class="btn btn-dark">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                    </svg>
+                    Сохранить email
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- TOAST УВЕДОМЛЕНИЕ -->
+<div class="toast" id="toast"></div>
+
+</body>
+</html>

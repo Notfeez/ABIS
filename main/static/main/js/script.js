@@ -1,5 +1,3 @@
-// ДЛЯ ЛОГИНА РЕГИСТРАЦИИ НЕ НУЖЕН, Я НА ПИТОНЕ ВСЕ ЭТО НАПИСАЛ
-
 const loginTab = document.getElementById("loginTab");
 const registerTab = document.getElementById("registerTab");
 

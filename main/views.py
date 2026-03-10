@@ -1,16 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from .models import User, Loan, Book, Request
-from django.contrib.auth import authenticate, login
-from .forms import CustomUserCreationForm, EmailAuthenticationForm
+from django.contrib.auth import authenticate, login, update_session_auth_hash
+from .forms import CustomUserCreationForm, EmailAuthenticationForm, BookForm 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import csv
-from datetime import datetime
+from django.core.paginator import Paginator
+from django.contrib.auth.forms import PasswordChangeForm
 
 # Create your views here.
 
@@ -43,13 +46,44 @@ def login_view(request):
         form = EmailAuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            login(request, user) 
-            return redirect('dashboard')
+            if user.role == User.Roles.ADMIN:
+                request.session['pre_auth_user_id'] = str(user.id) 
+                return redirect('admin_2fa')
+            else:
+                login(request, user)
+                return redirect('dashboard')
         else:
-            print(form.errors)
+            messages.error(request, 'Неверный email или пароль')
     else:
         form = EmailAuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+def admin_2fa(request):
+    user_id = request.session.get('pre_auth_user_id')
+    if not user_id:
+        messages.error(request, 'Несанкционированный доступ')
+        return redirect('login')
+
+    if request.method == 'POST':
+        code = request.POST.get('code')
+        if code == '1111': #TEMP 
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            user = User.objects.get(id=user_id)
+            login(request, user)
+            del request.session['pre_auth_user_id']
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, 'Неверный код')
+
+    return render(request, 'admin_2fa.html')
+
+def admin_required(view_func):
+    decorated_view_func = user_passes_test(
+        lambda u: u.is_authenticated and u.role == User.Roles.ADMIN,
+        login_url='login'
+    )(view_func)
+    return decorated_view_func
 
 def register(request):
     if request.method == 'POST':
@@ -66,12 +100,179 @@ def register(request):
 @login_required
 def dashboard(request):
     if request.user.role == User.Roles.ADMIN:
-        return admin_panel(request)
+        return redirect('admin_dashboard')
     elif request.user.role == User.Roles.LIBRARIAN:
         return librarian(request)
     else:  
         return Chitatel(request)
     
+@admin_required
+def admin_dashboard(request):
+    # Получаем все книги (без пагинации)
+    books = Book.objects.all().order_by('title')
+    
+    # Данные для статистики
+    total_books = books.count()
+    total_users = User.objects.count()
+    total_loans = Loan.objects.count()
+    active_loans = Loan.objects.filter(return_date__isnull=True).count()
+    
+    # Список пользователей (можно тоже без пагинации, но для удобства можно оставить пагинацию)
+    users_list = User.objects.all().order_by('email')
+    paginator = Paginator(users_list, 20)
+    page_number = request.GET.get('page')
+    users = paginator.get_page(page_number)
+    
+    active_tab = request.GET.get('tab', 'users')
+    
+    context = {
+        'books': books,              # полный список книг
+        'users': users,               # пагинированный список пользователей (если нужно)
+        'total_books': total_books,
+        'total_users': total_users,
+        'total_loans': total_loans,
+        'active_loans': active_loans,
+        'active_tab': active_tab,
+    }
+    return render(request, 'admin_dashboard.html', context)
+
+@login_required
+@admin_required
+def export_loans_csv(request):
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="loans.csv"'
+    response.write('\ufeff'.encode('utf-8'))
+
+    writer = csv.writer(response, delimiter=';')
+    writer.writerow(['ID выдачи', 'Книга', 'Читатель', 'Дата выдачи', 'Срок возврата', 'Дата возврата', 'Статус'])
+
+    loans = Loan.objects.all().select_related('book', 'reader')
+    for loan in loans:
+        writer.writerow([
+            loan.loan_id,
+            loan.book.title,
+            loan.reader.email,
+            loan.borrow_date.strftime('%d.%m.%Y') if loan.borrow_date else '',
+            loan.due_date.strftime('%d.%m.%Y') if loan.due_date else '',
+            loan.return_date.strftime('%d.%m.%Y') if loan.return_date else '',
+            loan.get_status_display()
+        ])
+    return response
+
+@admin_required
+def export_books_csv(request):
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="books.csv"'
+    response.write('\ufeff'.encode('utf-8'))
+
+    writer = csv.writer(response, delimiter=';')
+    writer.writerow(['ID', 'Название', 'Автор', 'ISBN', 'Статус', 'Дата публикации'])
+
+    books = Book.objects.all()
+    for book in books:
+        writer.writerow([
+            book.book_id,
+            book.title,
+            book.author,
+            book.isbn or '',
+            book.get_status_display(),
+            book.publication_date.strftime('%d.%m.%Y') if book.publication_date else ''
+        ])
+    return response
+
+@admin_required
+def export_users_csv(request):
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="users.csv"'
+    response.write('\ufeff'.encode('utf-8'))
+
+    writer = csv.writer(response, delimiter=';')
+    writer.writerow(['ID', 'Email', 'Имя', 'Фамилия', 'Роль', 'Дата регистрации'])
+
+    users = User.objects.all()
+    for user in users:
+        writer.writerow([
+            user.id,
+            user.email,
+            user.first_name,
+            user.last_name,
+            user.get_role_display(),
+            user.date_joined.strftime('%d.%m.%Y %H:%M')
+        ])
+    return response
+
+@admin_required
+def add_book(request):
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Книга успешно добавлена')
+            return redirect('admin_dashboard')
+    else:
+        form = BookForm()
+    return render(request, 'add_book.html', {'form': form})
+
+@admin_required
+def user_list(request):
+    users_list = User.objects.all().order_by('email')
+    paginator = Paginator(users_list, 100)
+    page_number = request.GET.get('page')
+    users = paginator.get_page(page_number)
+    active_tab = request.GET.get('tab', 'users')
+    
+    return render(request, 'admin.html', {
+        'users': users,
+        'total_users': User.objects.count(),
+        'total_books': Book.objects.count(),
+        'total_loans': Loan.objects.count(),
+        'active_loans': Loan.objects.filter(return_date__isnull=True).count(),
+        'active_tab': active_tab,
+    })
+
+@admin_required
+@require_POST
+def toggle_librarian(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if user.role == User.Roles.LIBRARIAN:
+        user.role = User.Roles.READER
+        messages.success(request, f'Пользователь {user.email} больше не библиотекарь')
+    elif user.role == User.Roles.READER:
+        user.role = User.Roles.LIBRARIAN
+        messages.success(request, f'Пользователь {user.email} назначен библиотекарем')
+    else:
+        messages.error(request, 'Нельзя изменить роль администратора')
+    user.save()
+    return redirect(reverse('admin_dashboard') + '?tab=users')
+
+@admin_required
+def admin_change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Пароль успешно изменён')
+        else:
+            messages.error(request, 'Исправьте ошибки в форме')
+    return redirect(reverse('admin_dashboard') + '?tab=settings')
+
+@admin_required
+def admin_change_email(request):
+    if request.method == 'POST':
+        new_email = request.POST.get('new_email')
+        password = request.POST.get('password')
+        user = request.user
+        if not user.check_password(password):
+            messages.error(request, 'Неверный пароль')
+        elif User.objects.filter(email=new_email).exclude(pk=user.pk).exists():
+            messages.error(request, 'Этот email уже используется')
+        else:
+            user.email = new_email
+            user.save()
+            messages.success(request, 'Email успешно изменён')
+    return redirect(reverse('admin_dashboard') + '?tab=settings')
+
 @login_required
 def Chitatel(request):
     total_books = Book.objects.count()
@@ -168,17 +369,21 @@ def approve_request(request, request_id):
     
     book_request = get_object_or_404(Request, request_id=request_id, status='pending')
     
-    # Get days from POST or use default 14
     days = int(request.POST.get('days', 14)) if request.method == 'POST' else 14
-    
     due_date = timezone.now().date() + timedelta(days=days)
+    
     Loan.objects.create(
         reader=book_request.reader,
         book=book_request.book,
         due_date=due_date
     )
+    
+    book_request.book.status = 'on_loan'
+    book_request.book.save()
+    
     book_request.status = 'approved'
     book_request.save()
+    
     messages.success(request, f'Запрос на книгу "{book_request.book.title}" одобрен на {days} дней.')
     return redirect('dashboard')
 
@@ -210,7 +415,6 @@ def return_book(request, loan_id):
 
 @login_required
 def cancel_request(request, request_id):
-    """Читатель отменяет свой запрос на книгу"""
     if request.user.role != User.Roles.READER:
         messages.error(request, 'Доступ запрещён.')
         return redirect('dashboard')
@@ -224,11 +428,10 @@ def cancel_request(request, request_id):
     book_title = book_request.book.title
     book_request.delete()
     messages.success(request, f'Запрос на книгу "{book_title}" отменён.')
-    return redirect('dashboard?tab=my_requests')
+    return redirect(reverse('dashboard') + '?tab=my_requests')
 
 @login_required
 def reader_profile(request):
-    """Профиль и настройки читателя"""
     if request.user.role != User.Roles.READER:
         messages.error(request, 'Доступ запрещён.')
         return redirect('dashboard')
@@ -256,7 +459,6 @@ def reader_profile(request):
 
 @login_required
 def book_detail(request, book_id):
-    """Детальный просмотр книги"""
     book = get_object_or_404(Book, book_id=book_id)
     reader_loan = None
     reader_request = None

@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
+from main.models import Book
+
 User = get_user_model()
 
 class CustomUserCreationForm(UserCreationForm):
@@ -52,4 +54,12 @@ class UserProfileForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-input'}),
             'last_name': forms.TextInput(attrs={'class': 'form-input'}),
             'email': forms.EmailInput(attrs={'class': 'form-input'}),
+        }
+
+class BookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['title', 'author', 'isbn', 'publication_date', 'status']
+        widgets = {
+            'publication_date': forms.DateInput(attrs={'type': 'date'}),
         }

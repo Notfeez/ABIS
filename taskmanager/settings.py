@@ -93,7 +93,7 @@ DATABASES = {
 AUTHENTICATION_BACKENDS = ['main.backends.EmailBackend']
 AUTH_USER_MODEL = 'main.User'
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'Chitatel'
+LOGIN_REDIRECT_URL = 'dashboard'
 
 AUTH_PASSWORD_VALIDATORS = [
     {

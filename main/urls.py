@@ -5,7 +5,6 @@ from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register, name='register'),
@@ -29,4 +28,16 @@ urlpatterns = [
     path('return/<uuid:loan_id>/', views.return_book, name='return_book'),
 
     path('export/books/csv/', views.export_books_csv, name='export_books_csv'),
+
+    #admnin
+    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin/export/loans/', views.export_loans_csv, name='export_loans_csv'),
+    path('admin/export/books/', views.export_books_csv, name='export_books_csv'),
+    path('admin/export/users/', views.export_users_csv, name='export_users_csv'),
+    path('admin/users/', views.user_list, name='user_list'),
+    path('admin/add-book/', views.add_book, name='add_book'),
+    path('admin/toggle-librarian/<uuid:user_id>/', views.toggle_librarian, name='toggle_librarian'),
+    path('admin/2fa/', views.admin_2fa, name='admin_2fa'),
+    path('admin/change-password/', views.admin_change_password, name='admin_change_password'),
+    path('admin/change-email/', views.admin_change_email, name='admin_change_email'),
 ]
