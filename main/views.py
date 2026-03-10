@@ -497,6 +497,6 @@ def return_book(request, loan_id):
         loan.return_book()
         messages.success(request, f'Книга "{loan.book.title}" успешно возвращена.')
     else:
-        messages.error(request, 'Неверный метод запроса.')
+        messages.error(request, 'Ошибка')
 
     return redirect('dashboard')
