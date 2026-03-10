@@ -488,3 +488,15 @@ def export_books_csv(request):
         ])
 
     return response
+
+@login_required
+@user_passes_test(lambda u: u.role == 'librarian')
+def return_book(request, loan_id):
+    loan = get_object_or_404(Loan, loan_id=loan_id, return_date__isnull=True)
+    if request.method == 'POST':
+        loan.return_book()
+        messages.success(request, f'Книга "{loan.book.title}" успешно возвращена.')
+    else:
+        messages.error(request, 'Неверный метод запроса.')
+
+    return redirect('dashboard')

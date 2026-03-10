@@ -173,7 +173,12 @@
                       <span class="detail-value is-overdue">{{ loan.days_overdue }} дней</span>
                     </div>
                   {% endif %}
-                  <button class="btn btn-primary full-width" onclick="showToast('Функция возврата в разработке')">Отметить возврат</button>
+                    <form method="post" action="{% url 'return_book' loan.loan_id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary full-width" onclick="return confirm('Подтвердить возврат книги?')">
+                            Отметить возврат
+                        </button>
+                    </form>
                 </div>
               </div>
             {% endfor %}

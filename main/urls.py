@@ -26,7 +26,7 @@ urlpatterns = [
     path('librarian/requests/', views.librarian_requests, name='librarian_requests'),
     path('librarian/approve/<uuid:request_id>/', views.approve_request, name='approve_request'),
     path('librarian/reject/<uuid:request_id>/', views.reject_request, name='reject_request'),
-    path('librarian/return/<uuid:loan_id>/', views.return_book, name='return_book'),
+    path('return/<uuid:loan_id>/', views.return_book, name='return_book'),
 
     path('export/books/csv/', views.export_books_csv, name='export_books_csv'),
 ]
