@@ -104,7 +104,7 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(
         max_length=150,
-        unique=False,
+        unique=True,
         help_text='Required. 150 characters or fewer.',
         validators=[AbstractUser.username_validator],)
     email = models.EmailField(

@@ -14,6 +14,7 @@ from django.http import HttpResponse, JsonResponse
 import csv
 from django.core.paginator import Paginator
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import views as auth_views
 
 # Create your views here.
 
