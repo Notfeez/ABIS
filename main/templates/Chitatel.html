@@ -275,29 +275,13 @@
                     <button type="submit" class="btn btn-primary">💾 Сохранить изменения</button>
                 </form>
             </div>
-                    <!-- НОВЫЙ БЛОК: Смена email -->
         <div class="settings-card">
             <div class="settings-card-header">
-                <h3>Смена email</h3>
-            </div>
-            <form method="post" action="{% url 'change_email' %}" class="settings-form">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="new_email">Новый email</label>
-                    <input type="email" id="new_email" name="new_email" class="form-input" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Сменить email</button>
-            </form>
-        </div>
-
-        <!-- НОВЫЙ БЛОК: Смена пароля (ссылка на стандартную страницу Django) -->
-        <div class="settings-card">
-            <div class="settings-card-header">
-                <h3>Смена пароля</h3>
+                <h3>Восстановление пароля</h3>
             </div>
             <div class="settings-info" style="padding: 20px;">
-                <p>Для смены пароля перейдите по ссылке:</p>
-                <a href="{% url 'password_change' %}" class="btn btn-primary">Сменить пароль</a>
+                <p>Забыли пароль, сброс:</p>
+                <a href="{% url 'password_reset' %}" class="btn btn-secondary">🔄 Сбросить пароль</a>
             </div>
         </div>
         </div>

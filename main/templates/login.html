@@ -36,8 +36,12 @@
             {% endfor %}
         </div>
     {% endif %}
-
-    <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
+    <div class="register">
+        <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
+    </div>
+    <div class="forgot-password">
+        <a href="{% url 'password_reset' %}">Забыли пароль?</a>
+    </div>
 </form>
 </div>
 </body>
