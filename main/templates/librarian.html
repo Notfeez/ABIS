@@ -263,45 +263,28 @@
     </div>
 
     <div class="settings-container">
-      <!-- PASSWORD SECTION -->
-      <div class="settings-card-large">
-        <div class="settings-card-header">
-          <div class="settings-card-icon">🔐</div>
-          <div class="settings-card-title">Изменить пароль</div>
+        <div class="settings-card-large">
+            <div class="settings-card-header">
+                <h3>Восстановление пароля</h3>
+            </div>
+            <div class="settings-info" style="padding: 20px;">
+                <p>Сброс пароля:</p>
+                <a href="{% url 'password_reset' %}" class="btn btn-secondary">🔄 Сбросить пароль</a>
+            </div>
         </div>
-        <div class="settings-card-description">Обновите пароль для безопасного доступа к вашему аккаунту</div>
-        <div class="form-group-large">
-          <label for="pwd-current" class="form-label">Текущий пароль</label>
-          <input type="password" id="pwd-current" class="form-input-large" placeholder="Введите текущий пароль">
         </div>
-        <div class="form-group-large">
-          <label for="pwd-new" class="form-label">Новый пароль</label>
-          <input type="password" id="pwd-new" class="form-input-large" placeholder="Введите новый пароль">
-        </div>
-        <div class="form-group-large">
-          <label for="pwd-confirm" class="form-label">Подтверждение пароля</label>
-          <input type="password" id="pwd-confirm" class="form-input-large" placeholder="Повторите новый пароль">
-        </div>
-        <button class="btn btn-primary btn-large" onclick="savePassword()">Сохранить пароль</button>
-      </div>
-
       <!-- EMAIL SECTION -->
-      <div class="settings-card-large">
-        <div class="settings-card-header">
-          <div class="settings-card-icon">✉️</div>
-          <div class="settings-card-title">Изменить email</div>
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <h3>✉️ Смена email</h3>
+            </div>
+            <div class="settings-info" style="padding: 20px;">
+                <p>Для смены email перейдите на отдельную страницу:</p>
+                <a href="{% url 'change_email_page' %}" class="btn btn-primary">
+                    📧 Перейти к смене email
+                </a>
+            </div>
         </div>
-        <div class="settings-card-description">Обновите адрес электронной почты для своего аккаунта</div>
-        <div class="form-group-large">
-          <label for="current-email" class="form-label">Текущий email</label>
-          <input type="email" id="current-email" class="form-input-large" value="{{ user.email }}" disabled>
-        </div>
-        <div class="form-group-large">
-          <label for="new-email" class="form-label">Новый email</label>
-          <input type="email" id="new-email" class="form-input-large" placeholder="example@mail.ru">
-        </div>
-        <button class="btn btn-primary btn-large" onclick="saveEmail()">Сохранить email</button>
-      </div>
     </div>
   </div>
 </main>

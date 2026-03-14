@@ -41,7 +41,7 @@ urlpatterns = [
     #resets (pass+email)
     path('password-reset/',
          auth_views.PasswordResetView.as_view(
-             template_name='registration/password_reset_form.html',  #注意: с registration/
+             template_name='registration/password_reset_form.html',
              email_template_name='registration/password_reset_email.html',
              subject_template_name='registration/password_reset_subject.txt',
              success_url='/password-reset-done/'
@@ -56,7 +56,7 @@ urlpatterns = [
 
     path('password-reset-confirm/<uidb64>/<token>/',
          auth_views.PasswordResetConfirmView.as_view(
-             template_name='registration/password_reset_confirm.html',  # ВАЖНО!
+             template_name='registration/password_reset_confirm.html',
              success_url='/password-reset-complete/'
          ),
          name='password_reset_confirm'),
@@ -66,4 +66,9 @@ urlpatterns = [
              template_name='registration/password_reset_complete.html'
          ),
          name='password_reset_complete'),
+
+    path('change-email/', views.change_email_page, name='change_email_page'),
+    
+    # Обработка формы (POST)
+    path('change-email/submit/', views.change_email, name='change_email'),
 ]

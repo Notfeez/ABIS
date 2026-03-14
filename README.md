@@ -1,5 +1,6 @@
 Запуск: python manage.py runserver
-посмотреть БД: python manage.py migrate
+БД: python manage.py makemigrations
+    python manage.py migrate
 
 // ds
 Создать виртуальное окружение и установить зависимости (pip install -r requirements.txt).
@@ -11,6 +12,3 @@
 Применить миграции: python manage.py migrate.
 
 При необходимости загрузить фикстуры: python manage.py loaddata initial_data
-
-
-/admin откроет окно администратора, логин admin, пароль 12345678

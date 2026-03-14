@@ -260,19 +260,13 @@
                     <div class="form-group">
                         <label for="first_name">Имя</label>
                         <input type="text" id="first_name" name="first_name" 
-                               value="{{ user.first_name }}" class="form-input" required>
+                               value="{{ user.first_name }}">
                     </div>
                     <div class="form-group">
                         <label for="last_name">Фамилия</label>
                         <input type="text" id="last_name" name="last_name" 
-                               value="{{ user.last_name }}" class="form-input" required>
+                               value="{{ user.last_name }}">
                     </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" 
-                               value="{{ user.email }}" class="form-input" disabled>
-                    </div>
-                    <button type="submit" class="btn btn-primary">💾 Сохранить изменения</button>
                 </form>
             </div>
         <div class="settings-card">
@@ -280,11 +274,25 @@
                 <h3>Восстановление пароля</h3>
             </div>
             <div class="settings-info" style="padding: 20px;">
-                <p>Забыли пароль, сброс:</p>
+                <p>Сброс пароля:</p>
                 <a href="{% url 'password_reset' %}" class="btn btn-secondary">🔄 Сбросить пароль</a>
             </div>
         </div>
-        </div>
+<!-- СМЕНА EMAIL -->
+<div class="settings-card">
+    <div class="settings-card-header">
+        <h3>✉️ Смена email</h3>
+    </div>
+    <div class="settings-info" style="padding: 20px;">
+        <p>Для смены email перейдите на отдельную страницу:</p>
+        <a href="{% url 'change_email_page' %}" class="btn btn-primary">
+            📧 Перейти к смене email
+        </a>
+        <p style="margin-top: 10px; font-size: 12px; color: var(--muted);">
+            ⚠️ После смены email ваш логин для входа тоже изменится
+        </p>
+    </div>
+</div>
     </div>
 
 </main>

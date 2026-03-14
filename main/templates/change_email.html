@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Смена email — АБИС</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'main/css/base.css' %}">
+    <style>
+        .email-change-container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+        
+        .email-change-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .email-change-header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .email-change-header p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 0;
+        }
+        
+        .email-change-body {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            transition: var(--transition-fast);
+        }
+        
+        .form-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(21, 93, 252, 0.1);
+        }
+        
+        .current-info {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 25px;
+        }
+        
+        .current-info p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .current-info strong {
+            color: var(--primary);
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            margin-top: 10px;
+        }
+        
+        .btn-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+        
+        .btn-back {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .btn-back:hover {
+            text-decoration: underline;
+        }
+        
+        .messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .alert-success {
+            background: var(--success-light);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .alert-error {
+            background: var(--danger-light);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        
+        .info-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-change-container">
+        <div class="email-change-header">
+            <h1>✉️ Смена email</h1>
+            <p>Изменение адреса электронной почты</p>
+        </div>
+        
+        <div class="email-change-body">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <div class="current-info">
+                <p><strong>Текущий email и логин:</strong> {{ user.email }}</p>
+                <p style="font-size: 12px; color: var(--text-muted; margin-top: 5px;">
+                    ⚠️ После смены email ваш логин для входа тоже изменится
+                </p>
+            </div>
+            
+            <form method="post" action="{% url 'change_email' %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="new_email">Новый email</label>
+                    <input type="email" id="new_email" name="new_email" 
+                           placeholder="noviy@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Текущий пароль</label>
+                    <input type="password" id="password" name="password" 
+                           placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-submit">
+                    📧 Сохранить новый email
+                </button>
+            </form>
+            
+            <div class="info-text">
+                После смены email вы сможете входить в систему с новым email
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="{% url 'dashboard' %}?tab=settings" class="btn-back">
+                    ← Вернуться в настройки
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -684,3 +684,31 @@ def return_book(request, loan_id):
         messages.error(request, 'Ошибка')
 
     return redirect('dashboard')
+
+@login_required
+def change_email(request):
+    if request.method == 'POST':
+        new_email = request.POST.get('new_email')
+        password = request.POST.get('password')
+        user = request.user
+        
+        # Проверяем пароль
+        if not user.check_password(password):
+            messages.error(request, 'Неверный пароль')
+        elif User.objects.filter(email=new_email).exclude(pk=user.pk).exists():
+            messages.error(request, 'Этот email уже используется')
+        elif User.objects.filter(username=new_email).exclude(pk=user.pk).exists():
+            messages.error(request, 'Этот email уже используется')
+        else:
+            user.email = new_email
+            user.username = new_email
+            user.save()
+            messages.success(request, 'Email успешно изменен!')
+            
+        return redirect('dashboard?tab=settings')
+    
+    return redirect('dashboard?tab=settings')
+
+@login_required
+def change_email_page(request):
+    return render(request, 'change_email.html')
