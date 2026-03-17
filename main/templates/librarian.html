@@ -7,7 +7,7 @@
   {% load static %}
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'main/css/base.css' %}">
-  <link rel="stylesheet" href="{% static 'main/css/Chitatel.css' %}">
+  <link rel="stylesheet" href="{% static 'main/css/librarian.css' %}">
   <script src="{% static 'main/js/librarian.js' %}" defer></script>
 </head>
 <body>
@@ -254,7 +254,7 @@
   <div class="tab-content" id="tab-settings">
     <div class="page-header">
       <div class="page-icon">
-         ⚙️
+          Добавьте иконку 
       </div>
       <div class="page-header-text">
         <h2>Параметры аккаунта</h2>
@@ -263,42 +263,28 @@
     </div>
 
     <div class="settings-container">
-      <div class="settings-card">
-        <div class="settings-card-header">
-          <h3>Личная информация</h3>
+        <div class="settings-card-large">
+            <div class="settings-card-header">
+                <h3>Восстановление пароля</h3>
+            </div>
+            <div class="settings-info" style="padding: 20px;">
+                <p>Сброс пароля:</p>
+                <a href="{% url 'password_reset' %}" class="btn btn-secondary">🔄 Сбросить пароль</a>
+            </div>
         </div>
-        <div class="settings-info" style="padding: 20px;">
-          <div class="form-group">
-            <label for="first_name">Имя</label>
-            <input id="first_name" type="text" value="{{ user.first_name }}" readonly disabled>
-          </div>
-          <div class="form-group">
-            <label for="last_name">Фамилия</label>
-            <input id="last_name" type="text" value="{{ user.last_name }}" readonly disabled>
-          </div>
-          <p class="field-note">Чтобы изменить имя или фамилию, обратитесь к администратору.</p>
         </div>
-      </div>
-
-      <div class="settings-card">
-        <div class="settings-card-header">
-          <h3>Восстановление пароля</h3>
+      <!-- EMAIL SECTION -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <h3>✉️ Смена email</h3>
+            </div>
+            <div class="settings-info" style="padding: 20px;">
+                <p>Для смены email перейдите на отдельную страницу:</p>
+                <a href="{% url 'change_email_page' %}" class="btn btn-primary">
+                    📧 Перейти к смене email
+                </a>
+            </div>
         </div>
-        <div class="settings-info" style="padding: 20px;">
-          <p>Сброс пароля:</p>
-          <a href="{% url 'password_reset' %}" class="btn btn-secondary">🔄 Сбросить пароль</a>
-        </div>
-      </div>
-
-      <div class="settings-card">
-        <div class="settings-card-header">
-          <h3>✉️ Смена email</h3>
-        </div>
-        <div class="settings-info" style="padding: 20px;">
-          <p>Для смены email перейдите на отдельную страницу:</p>
-          <a href="{% url 'change_email_page' %}" class="btn btn-primary">📧 Перейти к смене email</a>
-        </div>
-      </div>
     </div>
   </div>
 </main>

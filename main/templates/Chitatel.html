@@ -255,17 +255,19 @@
                 <div class="settings-card-header">
                     <h3>Личная информация</h3>
                 </div>
-                <div class="settings-info" style="padding: 20px;">
+                <form method="post" action="{% url 'reader_profile' %}" class="settings-form">
+                    {% csrf_token %}
                     <div class="form-group">
                         <label for="first_name">Имя</label>
-                        <input type="text" id="first_name" value="{{ user.first_name }}" readonly disabled>
+                        <input type="text" id="first_name" name="first_name" 
+                               value="{{ user.first_name }}">
                     </div>
                     <div class="form-group">
                         <label for="last_name">Фамилия</label>
-                        <input type="text" id="last_name" value="{{ user.last_name }}" readonly disabled>
+                        <input type="text" id="last_name" name="last_name" 
+                               value="{{ user.last_name }}">
                     </div>
-                    <p class="field-note">Имя и фамилия редактируются только администратором</p>
-                </div>
+                </form>
             </div>
         <div class="settings-card">
             <div class="settings-card-header">
