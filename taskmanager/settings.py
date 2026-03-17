@@ -94,8 +94,15 @@ AUTHENTICATION_BACKENDS = ['main.backends.EmailBackend']
 AUTH_USER_MODEL = 'main.User'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 PASSWORD_RESET_TIMEOUT = 86400
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-app-password'
+DEFAULT_FROM_EMAIL = 'your-email@gmail.com'
 
 AUTH_PASSWORD_VALIDATORS = [
     {

@@ -15,6 +15,9 @@ import csv
 from django.core.paginator import Paginator
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import views as auth_views
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+import random
 
 # Create your views here.
 
@@ -48,7 +51,13 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             if user.role == User.Roles.ADMIN:
-                request.session['pre_auth_user_id'] = str(user.id) 
+                code = generate_2fa_code()
+                request.session['pre_auth_user_id'] = str(user.id)
+                request.session['2fa_code'] = code
+                request.session['2fa_code_expiry'] = (timezone.now() + timedelta(minutes=5)).timestamp()
+                
+                send_2fa_code(user.email, code)
+                
                 return redirect('admin_2fa')
             else:
                 login(request, user)
@@ -61,18 +70,30 @@ def login_view(request):
 
 def admin_2fa(request):
     user_id = request.session.get('pre_auth_user_id')
-    if not user_id:
+    code = request.session.get('2fa_code')
+    expiry = request.session.get('2fa_code_expiry')
+
+    if not user_id or not code or not expiry:
         messages.error(request, 'Несанкционированный доступ')
         return redirect('login')
 
+    if timezone.now().timestamp() > expiry:
+        messages.error(request, 'Код истёк. Запросите новый.')
+        del request.session['pre_auth_user_id']
+        del request.session['2fa_code']
+        del request.session['2fa_code_expiry']
+        return redirect('login')
+
     if request.method == 'POST':
-        code = request.POST.get('code')
-        if code == '1111': #TEMP 
+        entered_code = request.POST.get('code')
+        if entered_code == code:
             from django.contrib.auth import get_user_model
             User = get_user_model()
             user = User.objects.get(id=user_id)
             login(request, user)
             del request.session['pre_auth_user_id']
+            del request.session['2fa_code']
+            del request.session['2fa_code_expiry']
             return redirect('admin_dashboard')
         else:
             messages.error(request, 'Неверный код')
@@ -712,3 +733,18 @@ def change_email(request):
 @login_required
 def change_email_page(request):
     return render(request, 'change_email.html')
+
+def generate_2fa_code():
+    return str(random.randint(100000, 999999))
+
+def send_2fa_code(email, code):
+    subject = 'Код подтверждения для входа в АБИС'
+    message = render_to_string('2fa_email.html', {'code': code})
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [email],
+        fail_silently=False,
+        html_message=message,
+    )
