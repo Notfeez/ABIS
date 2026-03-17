@@ -405,47 +405,106 @@ header {
   color: #78350f;
 }
 
-/* Settings Page */
+/* ============================================================================
+   SETTINGS PAGE (matches Chitatel.css reader style)
+   ============================================================================ */
+
+.tab-header {
+  margin-bottom: 28px;
+}
+
+.tab-header h2 {
+  font-size: 24px;
+  font-weight: var(--fw-extrabold);
+  color: var(--text);
+}
+
 .settings-container {
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  margin-top: 24px;
+  gap: 24px;
 }
 
-.settings-card-large {
+.settings-card {
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 32px;
   box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: var(--transition-fast);
+}
+
+.settings-card:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .settings-card-header {
+  padding: 22px 28px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.settings-card-icon {
-  font-size: 36px;
-  flex-shrink: 0;
-}
-
-.settings-card-title {
-  font-size: 20px;
+.settings-card-header h3 {
+  font-size: var(--font-size-lg);
   font-weight: var(--fw-bold);
   margin: 0;
   color: var(--text);
 }
 
-.settings-card-description {
-  font-size: var(--font-size-base);
+.settings-form {
+  padding: 28px;
+}
+
+.settings-info {
+  padding: 28px;
+}
+
+/* Readonly hint badge */
+.readonly-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--fw-semibold);
   color: var(--text-muted);
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
+  background: #f1f5f9;
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+/* btn-primary inside settings */
+.settings-form .btn-primary,
+.settings-info .btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--white) !important;
+  border: 1px solid var(--primary);
+  box-shadow: 0 2px 8px rgba(21, 93, 252, .28);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  text-decoration: none;
+  margin-top: var(--spacing-sm);
+  transition: var(--transition-fast);
+}
+.settings-form .btn-primary:hover,
+.settings-info .btn-primary:hover {
+  opacity: .9;
+  text-decoration: none;
+  color: var(--white) !important;
 }
 
 .form-group-large {
@@ -1064,126 +1123,6 @@ header {
 }
 
 /* ============================================================================
-   SETTINGS PAGE
-   ============================================================================ */
-
-.settings-container {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-  margin-top: 24px;
-}
-
-.settings-card-large {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 32px;
-  box-shadow: var(--shadow-sm);
-}
-
-.settings-card-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.settings-card-icon {
-  font-size: 36px;
-  flex-shrink: 0;
-}
-
-.settings-card-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--text);
-}
-
-.settings-card-description {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-.form-group-large {
-  margin-bottom: 22px;
-}
-
-.form-input-large {
-  width: 100%;
-  padding: 14px 18px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: 15px;
-  color: var(--text);
-  transition: all 0.2s;
-}
-
-.form-input-large:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(21, 93, 252, 0.1);
-}
-
-.form-input-large:disabled {
-  background: #f3f4f6;
-  color: var(--text-muted);
-  cursor: not-allowed;
-}
-
-.btn-large {
-  width: 100%;
-  padding: 14px 28px;
-  font-size: 15px;
-}
-
-/* ============================================================================
-   SETTINGS PAGE
-   ============================================================================ */
-
-.settings-container {
-
-.form-group {
-  margin-bottom: 18px;
-}
-
-.form-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: var(--text);
-}
-
-.form-input {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--text);
-  transition: all 0.2s;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(21, 93, 252, 0.1);
-}
-
-.form-input:disabled {
-  background: #f3f4f6;
-  color: var(--text-muted);
-  cursor: not-allowed;
-}
-
-/* ============================================================================
    BUTTONS
    ============================================================================ */
 
@@ -1384,13 +1323,4 @@ header {
     width: 40px;
     height: 40px;
   }
-
-  .settings-card-large {
-    padding: 18px;
-  }
-
-  .btn-large {
-    padding: 12px 18px;
-    font-size: 14px;
-  }
-}}
+}

@@ -252,39 +252,69 @@
 
   <!-- TAB: SETTINGS -->
   <div class="tab-content" id="tab-settings">
-    <div class="page-header">
-      <div class="page-icon">
-          Добавьте иконку 
-      </div>
-      <div class="page-header-text">
-        <h2>Параметры аккаунта</h2>
-        <p>Управление профилем и безопасностью</p>
-      </div>
+    <div class="tab-header">
+      <h2>⚙️ Настройки</h2>
     </div>
 
     <div class="settings-container">
-        <div class="settings-card-large">
-            <div class="settings-card-header">
-                <h3>Восстановление пароля</h3>
-            </div>
-            <div class="settings-info" style="padding: 20px;">
-                <p>Сброс пароля:</p>
-                <a href="{% url 'password_reset' %}" class="btn btn-secondary">🔄 Сбросить пароль</a>
-            </div>
+
+      <!-- Личная информация -->
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <h3>Личная информация</h3>
+          <span class="readonly-hint">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+            Только для чтения
+          </span>
         </div>
+        <div class="settings-form">
+          <div class="form-group">
+            <label class="form-label" for="lib_first_name">Имя</label>
+            <input class="form-input" type="text" id="lib_first_name"
+                   value="{{ user.first_name }}" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="lib_last_name">Фамилия</label>
+            <input class="form-input" type="text" id="lib_last_name"
+                   value="{{ user.last_name }}" disabled>
+          </div>
         </div>
-      <!-- EMAIL SECTION -->
-        <div class="settings-card">
-            <div class="settings-card-header">
-                <h3>✉️ Смена email</h3>
-            </div>
-            <div class="settings-info" style="padding: 20px;">
-                <p>Для смены email перейдите на отдельную страницу:</p>
-                <a href="{% url 'change_email_page' %}" class="btn btn-primary">
-                    📧 Перейти к смене email
-                </a>
-            </div>
+      </div>
+
+      <!-- Восстановление пароля -->
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <h3>🔑 Восстановление пароля</h3>
         </div>
+        <div class="settings-info">
+          <p>Для сброса пароля перейдите на отдельную страницу:</p>
+          <a href="{% url 'password_reset' %}" class="btn btn-primary">
+            🔑 Сбросить пароль
+          </a>
+          <p style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
+            ⚠️ На вашу почту будет отправлена ссылка для сброса пароля
+          </p>
+        </div>
+      </div>
+
+      <!-- Смена email -->
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <h3>✉️ Смена email</h3>
+        </div>
+        <div class="settings-info">
+          <p>Для смены email перейдите на отдельную страницу:</p>
+          <a href="{% url 'change_email_page' %}" class="btn btn-primary">
+            📧 Перейти к смене email
+          </a>
+          <p style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
+            ⚠️ После смены email ваш логин для входа тоже изменится
+          </p>
+        </div>
+      </div>
+
     </div>
   </div>
 </main>
