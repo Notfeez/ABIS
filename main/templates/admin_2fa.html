@@ -83,7 +83,7 @@
     <div class="auth-container">
         <div class="auth-header">
             <h1>🔐 Двухфакторная аутентификация</h1>
-            <p>Введите код из письма (тестовый код: 1111)</p>
+            <p>Введите код из письма.</p>
         </div>
 
         {% if messages %}
@@ -96,14 +96,10 @@
             {% csrf_token %}
             <div class="form-group">
                 <label for="code">Код подтверждения</label>
-                <input type="text" id="code" name="code" maxlength="4" pattern="\d{4}" inputmode="numeric" autocomplete="one-time-code" required>
+                <input type="text" id="code" name="code" maxlength="6" pattern="\d{6}" inputmode="numeric" autocomplete="one-time-code" required>
             </div>
             <button type="submit" class="btn-primary">Подтвердить</button>
         </form>
-
-        <div class="info-message" style="margin-top: 20px;">
-            ⏱️ Настоящая отправка кода на email будет реализована позже. Пока используйте код <strong>1111</strong>.
-        </div>
     </div>
 </body>
 </html>
