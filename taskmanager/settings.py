@@ -26,6 +26,9 @@ SECRET_KEY = config('SECRET_KEY')
 SECURE_SSL_REDIRECT = True          # Перенаправление HTTP -> HTTPS
 SESSION_COOKIE_SECURE = True        # Cookies только по HTTPS
 CSRF_COOKIE_SECURE = True           # CSRF-токен только по HTTPS
+CSRF_TRUSTED_ORIGINS = ['https://abis.website', 'https://www.abis.website']
+SESSION_COOKIE_DOMAIN = '.abis.website'
+
 
 # HSTS (включите только после настройки HTTPS на сервере)
 # SECURE_HSTS_SECONDS = 31536000    # 1 год
