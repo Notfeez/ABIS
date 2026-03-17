@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
+from decouple import config, Csv
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,12 +22,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o-a0cc%9zs!41s$&r&64hq^*9a5l)5nwp9om-d)@)(v7dh3c6q'
+SECRET_KEY = config('SECRET_KEY')
+SECURE_SSL_REDIRECT = True          # Перенаправление HTTP -> HTTPS
+SESSION_COOKIE_SECURE = True        # Cookies только по HTTPS
+CSRF_COOKIE_SECURE = True           # CSRF-токен только по HTTPS
+
+# HSTS (включите только после настройки HTTPS на сервере)
+# SECURE_HSTS_SECONDS = 31536000    # 1 год
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 
 # Application definition
@@ -136,3 +144,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
