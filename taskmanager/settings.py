@@ -109,8 +109,9 @@ LOGIN_REDIRECT_URL = 'dashboard'
 PASSWORD_RESET_TIMEOUT = 86400
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_PORT = config('EMAIL_PORT', cast=int, default=587)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast=bool, default=False)
+EMAIL_USE_TLS = not EMAIL_USE_SSL
 EMAIL_HOST_USER = 'abis.biblioteka@gmail.com'
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = 'your-email@gmail.com'
