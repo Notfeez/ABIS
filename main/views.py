@@ -133,8 +133,7 @@ def admin_dashboard(request):
     all_books = Book.objects.all()
     total_books = all_books.count()
     
-    # Для отображения берём только первые 10 (временное решение)
-    books = all_books.order_by('title')[:10]
+    books = all_books.order_by('title')
 
     total_users = User.objects.count()
     total_loans = Loan.objects.count()
