@@ -71,4 +71,5 @@ urlpatterns = [
     
     # Обработка формы (POST)
     path('change-email/submit/', views.change_email, name='change_email'),
+    path('admin/delete-book/<uuid:book_id>/', views.delete_book, name='delete_book'),
 ]

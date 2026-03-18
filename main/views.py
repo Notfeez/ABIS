@@ -751,3 +751,13 @@ def send_2fa_code(email, code):
         fail_silently=False,
         html_message=message,
     )
+    
+@login_required
+@admin_required
+def delete_book(request, book_id):
+    if request.method == 'POST':
+        book = get_object_or_404(Book, book_id=book_id)
+        book_title = book.title
+        book.delete()
+        messages.success(request, f'Книга "{book_title}" успешно удалена.')
+    return redirect('admin_dashboard')
