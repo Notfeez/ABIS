@@ -84,8 +84,8 @@ ANYMAIL = {
     'MAIL365_API_KEY': config('MAIL365_API_KEY'),
 }
 EMAIL_BACKEND = 'anymail.backends.mail365.EmailBackend'
-DEFAULT_FROM_EMAIL = 'abis.website@mail.ru'
-SERVER_EMAIL = 'abis.website@mail.ru'
+DEFAULT_FROM_EMAIL = 'abis.online@inbox.ru'
+SERVER_EMAIL = 'abis.online@inbox.ru'
 
 # Password reset timeout
 PASSWORD_RESET_TIMEOUT = 86400
