@@ -818,9 +818,7 @@ main {
   }
 }
 
-    padding: 0 20px 20px;
-    margin-top: auto;
-}
+
 
 /* Book Card (My Books) */
 .book-card {
@@ -1117,13 +1115,6 @@ main {
     letter-spacing: 0.5px;
 }
 
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: var(--white);
-    border: 1px solid var(--blue);
-    box-shadow: 0 2px 8px rgba(21, 93, 252, 0.3);
-    width: 100%;
-    justify-content: center;
-}
 
 .btn-unavailable {
     background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
@@ -1142,10 +1133,16 @@ main {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--blue) 0%, #0e3ca0 100%);
-    color: var(--white);
-    border: 1px solid var(--blue);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--white) !important;
+    border: 1px solid var(--primary);
     box-shadow: 0 2px 8px rgba(21, 93, 252, 0.3);
+}
+
+.btn-primary:hover {
+    opacity: .9;
+    text-decoration: none;
+    color: var(--white) !important;
 }
 
 /* ============================================================================
@@ -1218,6 +1215,10 @@ main {
     padding: 24px 28px;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .settings-card-header h3 {
@@ -1225,6 +1226,32 @@ main {
     font-weight: 700;
     margin: 0;
     color: var(--text);
+}
+
+/* Readonly hint badge */
+.readonly-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--fw-semibold);
+    color: var(--text-muted);
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+
+/* Note below readonly fields */
+.readonly-note {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    margin: 0;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
 }
 
 .settings-form {

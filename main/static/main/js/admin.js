@@ -1,82 +1,102 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const tabs = document.querySelectorAll('.nav-tab');
-    const contents = document.querySelectorAll('.tab-content');
+/* ============================================================================
+   АБИС — Библиотека | admin.js
+   ============================================================================ */
 
-    function switchTab(tabId) {
-        contents.forEach(content => content.classList.remove('active'));
-        const activeContent = document.getElementById('tab-' + tabId);
-        if (activeContent) activeContent.classList.add('active');
+const AdminUI = (() => {
 
-        tabs.forEach(btn => btn.classList.remove('active'));
-        const activeBtn = Array.from(tabs).find(btn => btn.dataset.tab === tabId);
-        if (activeBtn) activeBtn.classList.add('active');
+  /* ── Tab switching ──────────────────────────────────────── */
+  function switchTab(name) {
+    document.querySelectorAll('.nav-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === name);
+    });
+    document.querySelectorAll('.tab-content').forEach(section => {
+      section.classList.toggle('active', section.id === `tab-${name}`);
+    });
+    // Sync URL so ?tab= stays readable (no reload)
+    const url = new URL(window.location);
+    url.searchParams.set('tab', name);
+    history.replaceState(null, '', url);
+  }
 
-        const url = new URL(window.location);
-        url.searchParams.set('tab', tabId);
-        window.history.replaceState({}, '', url);
-    }
+  /* ── Client-side card search ────────────────────────────── */
+  function filterCards(inputId, listId) {
+    const input = document.getElementById(inputId);
+    const list  = document.getElementById(listId);
+    if (!input || !list) return;
 
-    tabs.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            switchTab(this.dataset.tab);
-        });
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      list.querySelectorAll('.user-row-card').forEach(card => {
+        card.style.display = (!q || card.textContent.toLowerCase().includes(q)) ? '' : 'none';
+      });
+    });
+  }
+
+  /* ── Books grid search ──────────────────────────────────── */
+  function filterGrid(inputId, gridId) {
+    const input = document.getElementById(inputId);
+    const grid  = document.getElementById(gridId);
+    if (!input || !grid) return;
+
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      grid.querySelectorAll('.book-card').forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = (!q || text.includes(q)) ? '' : 'none';
+      });
+    });
+  }
+
+  /* ── Collapse toggle ────────────────────────────────────── */
+  function toggleCollapse(bodyId) {
+    const body   = document.getElementById(bodyId);
+    const toggle = body?.previousElementSibling;
+    if (!body) return;
+
+    const isOpen = body.classList.toggle('open');
+    if (toggle) toggle.classList.toggle('open', isOpen);
+  }
+
+  /* ── Toast ──────────────────────────────────────────────── */
+  let _toastTimer = null;
+  function showToast(msg, duration = 2800) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+  }
+
+  /* ── Django messages → toast ────────────────────────────── */
+  function flashMessages() {
+    const block = document.querySelector('.messages-block');
+    if (!block) return;
+    block.querySelectorAll('.alert').forEach(el => {
+      showToast(el.textContent.trim());
+    });
+    // Hide the inline block after showing as toasts
+    block.style.display = 'none';
+  }
+
+  /* ── Init ───────────────────────────────────────────────── */
+  function init() {
+    // Wire up nav tab clicks
+    document.querySelectorAll('.nav-tab[data-tab]').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const activeTabFromUrl = urlParams.get('tab');
-    if (activeTabFromUrl) {
-        const foundBtn = Array.from(tabs).find(btn => btn.dataset.tab === activeTabFromUrl);
-        if (foundBtn) {
-            switchTab(activeTabFromUrl);
-        }
-    }
+    // Search hooks
+    filterCards('users-search', 'users-cards');
+    filterGrid ('books-search', 'books-grid');
 
-    const searchInput = document.getElementById('users-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#users-table-body .user-row');
+    // Show Django messages as toasts
+    flashMessages();
+  }
 
-            rows.forEach(row => {
-                const dataName = row.getAttribute('data-name') || '';
-                if (dataName.toLowerCase().includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-    }
+  document.addEventListener('DOMContentLoaded', init);
 
-    const toast = document.getElementById('toast');
-    if (toast) {
-        window.showToast = function(message, type = 'info', duration = 3000) {
-            toast.textContent = message;
-            toast.classList.remove('show', 'success', 'error', 'warning');
-            if (type === 'success') {
-                toast.style.background = '#10b981';
-            } else if (type === 'error') {
-                toast.style.background = '#ef4444';
-            } else if (type === 'warning') {
-                toast.style.background = '#f59e0b';
-            } else {
-                toast.style.background = '#1e293b';
-            }
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, duration);
-        };
+  /* Public */
+  return { switchTab, toggleCollapse, showToast };
 
-        toast.addEventListener('click', function() {
-            this.classList.remove('show');
-        });
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && toast && toast.classList.contains('show')) {
-            toast.classList.remove('show');
-        }
-    });
-});
+})();
