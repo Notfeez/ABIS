@@ -752,7 +752,6 @@ def send_2fa_code(email, code):
         html_message=message,
     )
     
-@login_required
 @admin_required
 def delete_book(request, book_id):
     if request.method == 'POST':
