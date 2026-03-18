@@ -130,7 +130,7 @@ def dashboard(request):
     
 @admin_required
 def admin_dashboard(request):
-    books = Book.objects.all().order_by('title')
+    books = Book.objects.all().order_by('title')[:10]  # только первые 10 книг
     
     total_books = books.count()
     total_users = User.objects.count()
