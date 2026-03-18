@@ -81,9 +81,9 @@ LOGIN_REDIRECT_URL = 'dashboard'
 
 # Email configuration via Anymail + Unisender Go
 ANYMAIL = {
-    'UNISENDER_GO_API_KEY': config('UNISENDER_GO_API_KEY'),
+    'MAIL365_API_KEY': config('MAIL365_API_KEY'),
 }
-EMAIL_BACKEND = 'anymail.backends.unisender_go.EmailBackend'
+EMAIL_BACKEND = 'anymail.backends.mail365.EmailBackend'
 DEFAULT_FROM_EMAIL = 'abis.website@mail.ru'
 SERVER_EMAIL = 'abis.website@mail.ru'
 
