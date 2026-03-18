@@ -130,23 +130,26 @@ def dashboard(request):
     
 @admin_required
 def admin_dashboard(request):
-    books = Book.objects.all().order_by('title')[:10]  # только первые 10 книг
+    all_books = Book.objects.all()
+    total_books = all_books.count()
     
-    total_books = books.count()
+    # Для отображения берём только первые 10 (временное решение)
+    books = all_books.order_by('title')[:10]
+
     total_users = User.objects.count()
     total_loans = Loan.objects.count()
     active_loans = Loan.objects.filter(return_date__isnull=True).count()
-    
+
     users_list = User.objects.all().order_by('email')
     paginator = Paginator(users_list, 20)
     page_number = request.GET.get('page')
     users = paginator.get_page(page_number)
-    
+
     active_tab = request.GET.get('tab', 'users')
-    
+
     context = {
-        'books': books,            
-        'users': users,               
+        'books': books,
+        'users': users,
         'total_books': total_books,
         'total_users': total_users,
         'total_loans': total_loans,
