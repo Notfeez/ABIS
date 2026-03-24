@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'anymail',               # обязательно
+    # 'anymail',  # Удаляем, так как возвращаемся к SMTP
     'main',
 ]
 
@@ -80,13 +80,16 @@ AUTH_USER_MODEL = 'main.User'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 
-# Email configuration via Anymail + Unisender Go
-ANYMAIL = {
-    'MAIL365_API_KEY': config('MAIL365_API_KEY'),
-}
-EMAIL_BACKEND = 'anymail.backends.mail365.EmailBackend'
-DEFAULT_FROM_EMAIL = 'abis.online@inbox.ru'
-SERVER_EMAIL = 'abis.online@inbox.ru'
+# Email settings - Gmail SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+SERVER_EMAIL = config('SERVER_EMAIL')
 
 # Password reset timeout
 PASSWORD_RESET_TIMEOUT = 86400
