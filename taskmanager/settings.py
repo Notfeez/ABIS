@@ -18,7 +18,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 #SESSION_COOKIE_SECURE = True
 #CSRF_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = ['https://abis.website', 'https://www.abis.website', 'http://abis.website', 'http://www.abis.website']
-SESSION_COOKIE_DOMAIN = '.abis.website'
+#SESSION_COOKIE_DOMAIN = '.abis.website'
 CSRF_USE_SESSIONS = False
 
 # Application definition
