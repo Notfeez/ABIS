@@ -14,9 +14,9 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 # HTTPS settings
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+#SECURE_SSL_REDIRECT = True
+#SESSION_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = ['https://abis.website', 'https://www.abis.website', 'http://abis.website', 'http://www.abis.website']
 SESSION_COOKIE_DOMAIN = '.abis.website'
 CSRF_USE_SESSIONS = False
