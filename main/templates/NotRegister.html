@@ -2,60 +2,195 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="yandex-verification" content="6fb479f9477eb50e" />
     <title>АБИС — Библиотека</title>
     {% load static %}
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'main/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'main/css/NotRegister.css' %}">
     <script src="{% static 'main/js/reader.js' %}" defer></script>
 </head>
 <body>
-    <header class="header">
-        <div class="container_header">
-            <div class="logo-icon">
-                <img src="{% static '/main/images/Background.svg' %}" alt="">
-            </div>
-            <div>
-                <div class="title_header">АБИС — Библиотека</div>
-                <div class="subtitle_header">Автоматизированная система учёта книг</div>
-            </div>
+
+<!-- HEADER -->
+<header>
+    <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="10" fill="#155DFC"/>
+            <path d="M24 14L28 28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 14V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 16V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 12V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="logo-text">
+            <h1>АБИС — Библиотека</h1>
+            <p>Автоматизированная система учёта книг</p>
         </div>
-        <button class="btn_header" onclick="window.location.href='{% url 'login' %}'">
-            <img src="{% static '/main/images/SVG.svg' %}" alt="">Войти
-        </button>
+    </div>
+    <button class="login-btn" onclick="window.location.href='{% url 'login' %}'">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+        </svg>
+        Войти
+    </button>
 </header>
 
-    <main class="container">
-        <h1 class="title_main">Каталог книг</h1>
-        <p class="subtitle_main">Войдите или зарегистрируйтесь для запроса книг из библиотеки</p>
+<!-- MAIN CONTENT -->
+<main>
 
-        <div class="search-box">
-            <form method="get" action="">
-                <input type="text" name="q" id="searchInput" placeholder="Поиск книг по названию, автору или коду..." value="{{ query }}" oninput="filterBooks()">
-                <button type="submit" style="display: none;">Найти</button>
-            </form>
-        </div>
+    <!-- PAGE TITLE -->
+    <div class="page-hero">
+        <h2>Каталог книг</h2>
+        <p>Войдите или зарегистрируйтесь для запроса книг из библиотеки</p>
+    </div>
 
-        <div class="stats">
-            Всего книг: <b>{{ total_books }}</b> · Доступно: <b>{{ available_books }}</b> · На руках: <b>{{ on_loan_books }}</b>
+    <!-- STATISTICS -->
+    <div class="stats">
+        <div class="stat-item">
+            <span class="stat-label">Всего книг</span>
+            <span class="stat-value">{{ total_books }}</span>
         </div>
-        <div class="catalog" id="booksContainer">
+        <div class="stat-item">
+            <span class="stat-label">Доступно</span>
+            <span class="stat-value available">{{ available_books }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">На руках</span>
+            <span class="stat-value issued">{{ on_loan_books }}</span>
+        </div>
+    </div>
+
+    <!-- SEARCH & FILTERS -->
+    <div class="tab-header">
+        <h2>Каталог библиотеки</h2>
+            <input class="search-input" type="text" id="searchInput"
+                   placeholder="Поиск по названию, автору или ISBN..."
+                   value="{{ query }}" oninput="liveSearch()">
+            <button class="search-clear" id="clearBtn" onclick="clearSearch()" title="Очистить поиск">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="search-meta" id="searchMeta"></div>
+    </div>
+
+    <div class="filter-chips">
+        <button class="chip active" data-filter="all">Все</button>
+        <button class="chip" data-filter="available">Доступные</button>
+        <button class="chip" data-filter="on_loan">На руках</button>
+        <button class="chip" data-filter="reserved">Зарезервированные</button>
+    </div>
+
+    <!-- BOOKS GRID -->
+    <div class="books-grid" id="booksContainer">
+        {% if all_books %}
             {% for book in all_books %}
-                <!-- Добавляем data-status -->
-                <div class="book-item" data-status="{{ book.status }}">
+            <div class="book-item"
+                 data-status="{{ book.status }}"
+                 data-title="{{ book.title|lower }}"
+                 data-author="{{ book.author|lower }}"
+                 data-isbn="{{ book.isbn|default:''|lower }}">
+                <div class="book-header">
                     <h3>{{ book.title }}</h3>
-                    <p>Автор: {{ book.author }}</p>
-                    <p>Статус: {{ book.get_status_display }}</p>
+                    {% if book.status == 'available' %}
+                        <span class="status-badge available">Доступна</span>
+                    {% elif book.status == 'on_loan' %}
+                        <span class="status-badge issued">На руках</span>
+                    {% else %}
+                        <span class="status-badge reserved">Зарезервирована</span>
+                    {% endif %}
                 </div>
-            {% empty %}
-                <p>В библиотеке нет книг</p>
+                <p class="book-author">{{ book.author }}</p>
+                <p class="book-isbn">ISBN: {{ book.isbn|default:"—" }}</p>
+                <div class="book-action">
+                    <button class="btn btn-login" onclick="window.location.href='{% url 'login' %}'">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+                        </svg>
+                        Войти для запроса
+                    </button>
+                </div>
+            </div>
             {% endfor %}
-        </div>
-    </main>
-</body>
-</html>
+        {% else %}
+            <div class="empty-state">
+                <p>В библиотеке нет книг</p>
+            </div>
+        {% endif %}
+    </div>
 
+    <div class="no-results" id="noResults" style="display:none;">
+        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
+        </svg>
+        <p>Ничего не найдено</p>
+        <span>Попробуйте другой запрос или сбросьте фильтр</span>
+    </div>
+
+    <script>
+        let activeFilter = 'all';
+
+        function liveSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const clearBtn = document.getElementById('clearBtn');
+            clearBtn.classList.toggle('visible', query.length > 0);
+            applyFilters();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearBtn').classList.remove('visible');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.book-item');
+            let visible = 0;
+
+            cards.forEach(card => {
+                const title = card.dataset.title || '';
+                const author = card.dataset.author || '';
+                const isbn = card.dataset.isbn || '';
+                const status = card.dataset.status || '';
+
+                const matchesSearch = !query || title.includes(query) || author.includes(query) || isbn.includes(query);
+                const matchesFilter = activeFilter === 'all' || status === activeFilter;
+
+                if (matchesSearch && matchesFilter) {
+                    card.style.display = '';
+                    visible++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            const meta = document.getElementById('searchMeta');
+            const noResults = document.getElementById('noResults');
+            if (query || activeFilter !== 'all') {
+                meta.textContent = `Показано: ${visible} из ${cards.length}`;
+                meta.style.display = 'block';
+            } else {
+                meta.style.display = 'none';
+            }
+            noResults.style.display = visible === 0 ? 'flex' : 'none';
+            document.getElementById('booksContainer').style.display = visible === 0 ? 'none' : '';
+        }
+
+        // Filter chips
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                activeFilter = chip.dataset.filter;
+                applyFilters();
+            });
+        });
+    </script>
+
+</main>
 
 </body>
 </html>
