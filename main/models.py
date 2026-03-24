@@ -6,6 +6,9 @@ import uuid
 
 # Create your models here.
 
+from django.db import models
+import uuid
+
 class Book(models.Model):
     book_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, verbose_name="ID книги")
     title = models.CharField(max_length=200, verbose_name="Название")
@@ -20,6 +23,7 @@ class Book(models.Model):
     
     status = models.CharField(max_length=20, choices=LOAN_STATUS, default='available', verbose_name="Статус")
     isbn = models.CharField(max_length=13, unique=True, null=True, blank=True, verbose_name="ISBN")
+    image = models.ImageField(upload_to='book_covers/', blank=True, null=True, verbose_name="Обложка")
     
     class Meta:
         verbose_name = "Книга"

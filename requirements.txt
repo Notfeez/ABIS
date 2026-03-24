@@ -4,4 +4,4 @@ psycopg2-binary==2.9.11
 python-decouple==3.8
 sqlparse==0.5.5
 tzdata==2025.3
-django-anymail
+Pillow==10.0.0

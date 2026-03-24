@@ -2,6 +2,7 @@
 БД: python manage.py makemigrations
     python manage.py migrate
 
+Создание книг: python create_books.py
 // ds
 Создать виртуальное окружение и установить зависимости (pip install -r requirements.txt).
 
