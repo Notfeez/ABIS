@@ -203,7 +203,7 @@
       <div class="page-header-text">
         <h2>Каталог книг</h2>
                 <a href="{% url 'export_books_csv' %}" class="btn btn-primary" style="padding: 8px 16px;">
-            📥 Экспорт в CSV
+            Экспорт в CSV
         </a>
         <p>Книжный фонд библиотеки — {{ books|length }} книг</p>
       </div>
@@ -253,7 +253,7 @@
   <!-- TAB: SETTINGS -->
   <div class="tab-content" id="tab-settings">
     <div class="tab-header">
-      <h2>⚙️ Настройки</h2>
+      <h2>Настройки</h2>
     </div>
 
     <div class="settings-container">
@@ -286,15 +286,15 @@
       <!-- Восстановление пароля -->
       <div class="settings-card">
         <div class="settings-card-header">
-          <h3>🔑 Восстановление пароля</h3>
+          <h3>Восстановление пароля</h3>
         </div>
         <div class="settings-info">
           <p>Для сброса пароля перейдите на отдельную страницу:</p>
           <a href="{% url 'password_reset' %}" class="btn btn-primary">
-            🔑 Сбросить пароль
+            Сбросить пароль
           </a>
           <p style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
-            ⚠️ На вашу почту будет отправлена ссылка для сброса пароля
+            На вашу почту будет отправлена ссылка для сброса пароля
           </p>
         </div>
       </div>
@@ -302,15 +302,15 @@
       <!-- Смена email -->
       <div class="settings-card">
         <div class="settings-card-header">
-          <h3>✉️ Смена email</h3>
+          <h3>Смена email</h3>
         </div>
         <div class="settings-info">
           <p>Для смены email перейдите на отдельную страницу:</p>
           <a href="{% url 'change_email_page' %}" class="btn btn-primary">
-            📧 Перейти к смене email
+            Перейти к смене email
           </a>
           <p style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
-            ⚠️ После смены email ваш логин для входа тоже изменится
+            После смены email ваш логин для входа тоже изменится
           </p>
         </div>
       </div>
