@@ -63,11 +63,26 @@ class BookForm(forms.ModelForm):
             'publication_date': forms.DateInput(attrs={'type': 'date'}),
         }
         
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+
 class CustomPasswordResetForm(PasswordResetForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-input'})
+
+    def send_mail(self, subject_template_name, email_template_name,
+                  context, from_email, to_email, html_email_template_name=None):
+        html_email_template_name = 'password_reset_email.html'
+        super().send_mail(
+            subject_template_name,
+            email_template_name,
+            context,
+            from_email,
+            to_email,
+            html_email_template_name=html_email_template_name,
+        )
+
 
 class CustomSetPasswordForm(SetPasswordForm):
     def __init__(self, *args, **kwargs):
