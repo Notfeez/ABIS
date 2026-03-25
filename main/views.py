@@ -50,17 +50,17 @@ def login_view(request):
         form = EmailAuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            # if user.role == User.Roles.ADMIN:
-            #     code = generate_2fa_code()
-            #     request.session['pre_auth_user_id'] = str(user.id)
-            #     request.session['2fa_code'] = code
-            #     request.session['2fa_code_expiry'] = (timezone.now() + timedelta(minutes=5)).timestamp()
+            if user.role == User.Roles.ADMIN:
+                code = generate_2fa_code()
+                request.session['pre_auth_user_id'] = str(user.id)
+                request.session['2fa_code'] = code
+                request.session['2fa_code_expiry'] = (timezone.now() + timedelta(minutes=5)).timestamp()
                 
-            #     send_2fa_code(user.email, code)
+                send_2fa_code(user.email, code)
                 
-            #     return redirect('admin_2fa')
-            # else:
-            login(request, user)
+                return redirect('admin_2fa')
+            else:
+                login(request, user)
             return redirect('dashboard')
         else:
             messages.error(request, 'Неверный email или пароль')
