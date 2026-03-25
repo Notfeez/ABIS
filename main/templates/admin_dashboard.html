@@ -430,65 +430,36 @@
     <div class="settings-container">
 
       <!-- Смена пароля -->
-      <div class="settings-card">
-        <div class="settings-card-header">
-          <h3>🔑 Смена пароля</h3>
-        </div>
-        <div class="settings-form">
-          <form method="post" action="{% url 'admin_change_password' %}">
-            {% csrf_token %}
-            <div class="form-group">
-              <label class="form-label" for="current_password">Текущий пароль</label>
-              <input class="form-input" type="password" id="current_password"
-                     name="current_password" placeholder="Введите текущий пароль" required>
+     <div class="settings-card">
+            <div class="settings-card-header">
+                <h3>Восстановление пароля</h3>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="new_password1">Новый пароль</label>
-              <input class="form-input" type="password" id="new_password1"
-                     name="new_password1" placeholder="Введите новый пароль" required>
+            <div class="settings-info">
+                <p>Для сброса пароля перейдите на отдельную страницу:</p>
+                <a href="{% url 'password_reset' %}" class="btn btn-primary">
+                    Сбросить пароль
+                </a>
+                <p style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
+                    На вашу почту будет отправлена ссылка для сброса пароля
+                </p>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="new_password2">Подтвердите пароль</label>
-              <input class="form-input" type="password" id="new_password2"
-                     name="new_password2" placeholder="Повторите новый пароль" required>
-            </div>
-            <button type="submit" class="btn btn-primary">
-              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-              </svg>
-              Сохранить пароль
-            </button>
-          </form>
-        </div>
-      </div>
+          </div>
 
       <!-- Смена email -->
       <div class="settings-card">
-        <div class="settings-card-header">
-          <h3>✉️ Смена email</h3>
-        </div>
-        <div class="settings-form">
-          <form method="post" action="{% url 'admin_change_email' %}">
-            {% csrf_token %}
-            <div class="form-group">
-              <label class="form-label" for="new_email">Новый email</label>
-              <input class="form-input" type="email" id="new_email"
-                     name="new_email" placeholder="admin@library.edu" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="email_password">Текущий пароль (для подтверждения)</label>
-              <input class="form-input" type="password" id="email_password"
-                     name="password" placeholder="Введите текущий пароль" required>
-            </div>
-            <button type="submit" class="btn btn-primary">
-              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-              </svg>
-              Сохранить email
-            </button>
-          </form>
-        </div>
-      </div>
+    <div class="settings-card-header">
+        <h3>✉️ Смена email</h3>
+    </div>
+    <div class="settings-info" style="padding: 20px;">
+        <p>Для смены email перейдите на отдельную страницу:</p>
+        <a href="{% url 'change_email_page' %}" class="btn btn-primary">
+            📧 Перейти к смене email
+        </a>
+        <p style="margin-top: 10px; font-size: 12px; color: var(--muted);">
+            ⚠️ После смены email ваш логин для входа тоже изменится
+        </p>
+    </div>
+</div>
 
     </div><!-- /settings-container -->
 
