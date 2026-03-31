@@ -106,50 +106,499 @@
         <div class="books-grid" id="booksContainer">
             {% if all_books %}
                 {% for book in all_books %}
-                <div class="book-item"
-                     data-status="{{ book.status }}"
-                     data-title="{{ book.title|lower }}"
-                     data-author="{{ book.author|lower }}"
-                     data-isbn="{{ book.isbn|default:''|lower }}">
-                    {% if book.image %}
-                      <div class="book-cover">
-                        <img src="{{ book.image.url }}" alt="{{ book.title }}" loading="lazy">
-                      </div>
-                    {% else %}
-                      <div class="book-cover placeholder">
-                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                      </div>
-                    {% endif %}
-                    <div class="book-header">
-                        <h3>{{ book.title }}</h3>
-                        {% if book.status == 'available' %}
-                            <span class="status-badge available">Доступна</span>
-                        {% elif book.status == 'on_loan' %}
-                            <span class="status-badge issued">На руках</span>
-                        {% else %}
-                            <span class="status-badge reserved">Зарезервирована</span>
-                        {% endif %}
-                    </div>
-                    <p class="book-author">{{ book.author }}</p>
-                    <p class="book-isbn">ISBN: {{ book.isbn|default:"—" }}</p>
-                    <div class="book-action">
-                        <button class="btn btn-login" onclick="window.location.href='{% url 'request_book' book.book_id %}'">
-                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/>
-                            </svg>
-                            Запросить
-                        </button>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="empty-state">
-                    <p>В библиотеке нет книг</p>
-                </div>
-            {% endif %}
+                <!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>АБИС — Администратор</title>
+  {% load static %}
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'main/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'main/css/admin.css' %}">
+  <script src="{% static 'main/js/admin.js' %}" defer></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ HEADER ══ -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
+        <path d="M24 14L28 28" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M20 14V28"    stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M16 16V28"   stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M12 12V28"   stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <h1>АБИС — Библиотека</h1>
+      <p>Панель администратора</p>
+    </div>
+  </div>
+
+  <div class="header-meta">
+    <span class="header-stat">Книг: <strong>{{ total_books }}</strong></span>
+    <span class="header-dot">•</span>
+    <span class="header-stat">Пользователей: <strong>{{ total_users }}</strong></span>
+    <span class="header-dot">•</span>
+    <span class="header-stat">Выдач: <strong>{{ total_loans }}</strong></span>
+  </div>
+
+  <div class="header-right">
+    <div class="header-user">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+      {{ user.first_name }} {{ user.last_name }}
+    </div>
+    <span class="role-badge">Администратор</span>
+    <form method="post" action="{% url 'logout' %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="logout-btn">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+        Выйти
+      </button>
+    </form>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════ NAV ═══ -->
+<div class="nav-wrapper">
+  <div class="nav-tabs">
+    <button class="nav-tab {% if active_tab == 'users'    %}active{% endif %}" data-tab="users">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 100-8 4 4 0 000 8z"/></svg>
+      Пользователи
+    </button>
+    <button class="nav-tab {% if active_tab == 'catalog'  %}active{% endif %}" data-tab="catalog">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      Каталог
+    </button>
+    <button class="nav-tab {% if active_tab == 'data'     %}active{% endif %}" data-tab="data">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0018 0V5M3 12a9 3 0 0018 0"/></svg>
+      Данные
+    </button>
+    <button class="nav-tab {% if active_tab == 'settings' %}active{% endif %}" data-tab="settings">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Настройки
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ MAIN ══ -->
+<main>
+
+  {% if messages %}
+  <div class="messages-block">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ─── ПОЛЬЗОВАТЕЛИ ─────────────────────────── -->
+  <div id="tab-users" class="tab-content {% if active_tab == 'users' %}active{% endif %}">
+
+    <div class="page-header">
+      <div class="page-icon purple">
+        <svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 100-8 4 4 0 000 8zm6 4a3 3 0 100-6 3 3 0 000 6zM3 16a3 3 0 100-6 3 3 0 000 6z"/>
+        </svg>
+      </div>
+      <div class="page-header-text">
+        <h2>Управление пользователями</h2>
+        <p>Всего пользователей: {{ total_users }}</p>
+      </div>
+      <a href="{% url 'export_users_csv' %}" class="btn-export ml-auto">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        Экспорт CSV
+      </a>
+    </div>
+
+    <div class="search-wrap">
+      <svg class="search-icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="search-input" id="users-search" type="text"
+             placeholder="Поиск по имени, email или ID...">
+    </div>
+
+    <div class="user-cards" id="users-cards">
+      {% for u in users %}
+      <div class="user-row-card">
+        <div class="urc-left">
+          <div class="urc-name-row">
+            <span class="urc-name">{{ u.first_name }} {{ u.last_name }}</span>
+            <span class="badge
+              {% if u.role == 'admin' %}badge-admin
+              {% elif u.role == 'librarian' %}badge-librarian
+              {% else %}badge-reader{% endif %}">
+              {{ u.get_role_display }}
+            </span>
+          </div>
+          <div class="urc-meta">
+            <span>{{ u.email }}</span>
+            <span>ID: {{ u.id }}</span>
+            {% if u.reader_id %}<span>Reader ID: {{ u.reader_id }}</span>{% endif %}
+          </div>
         </div>
+        <div class="urc-right">
+          {% if u.role != 'admin' %}
+            <form method="post" action="{% url 'toggle_librarian' u.id %}" style="display:inline;">
+              {% csrf_token %}
+              {% if u.role == 'librarian' %}
+                <button type="submit" class="btn-demote"
+                        onclick="return confirm('Убрать роль библиотекаря?')">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <line x1="22" y1="11" x2="16" y2="11"/>
+                  </svg>
+                  Снять с должности
+                </button>
+              {% else %}
+                <button type="submit" class="btn-promote"
+                        onclick="return confirm('Назначить библиотекарем?')">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="8.5" cy="7" r="4"/>
+                    <line x1="20" y1="8" x2="20" y2="14"/>
+                    <line x1="23" y1="11" x2="17" y2="11"/>
+                  </svg>
+                  Назначить библиотекарем
+                </button>
+              {% endif %}
+            </form>
+          {% else %}
+            <span class="locked">Нельзя изменить</span>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state" style="grid-column:unset">Пользователи не найдены</div>
+      {% endfor %}
+    </div>
+
+    {% if users.has_other_pages %}
+    <div class="pagination">
+      {% if users.has_previous %}
+        <a class="page-link" href="?page=1&tab=users">&laquo;</a>
+        <a class="page-link" href="?page={{ users.previous_page_number }}&tab=users">‹ Назад</a>
+      {% endif %}
+      <span class="page-current">{{ users.number }} / {{ users.paginator.num_pages }}</span>
+      {% if users.has_next %}
+        <a class="page-link" href="?page={{ users.next_page_number }}&tab=users">Вперёд ›</a>
+        <a class="page-link" href="?page={{ users.paginator.num_pages }}&tab=users">&raquo;</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div><!-- /tab-users -->
+
+
+  <!-- ─── КАТАЛОГ ──────────────────────────────── -->
+  <div id="tab-catalog" class="tab-content {% if active_tab == 'catalog' %}active{% endif %}">
+
+    <div class="page-header">
+      <div class="page-icon blue">
+        <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+      </div>
+      <div class="page-header-text">
+        <h2>Каталог книг</h2>
+        <p>Всего книг: {{ total_books }}</p>
+      </div>
+      <a href="{% url 'export_books_csv' %}" class="btn-export ml-auto">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        Экспорт CSV
+      </a>
+    </div>
+
+    <!-- Форма добавления книги -->
+    <div class="collapse-block" id="add-book-block">
+      <button class="collapse-toggle" onclick="AdminUI.toggleCollapse('add-book-body')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Добавить новую книгу
+        <svg class="collapse-arrow" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="collapse-body" id="add-book-body">
+        <form method="post" action="{% url 'add_book' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="title">Название *</label>
+              <input class="form-input" type="text" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="author">Автор *</label>
+              <input class="form-input" type="text" id="author" name="author" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="isbn">ISBN</label>
+              <input class="form-input" type="text" id="isbn" name="isbn" placeholder="978-5-12345-678-9">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="publication_date">Дата публикации</label>
+              <input class="form-input" type="date" id="publication_date" name="publication_date">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="status">Статус</label>
+              <select class="form-input" id="status" name="status">
+                <option value="available">Доступна</option>
+                <option value="on_loan">В аренде</option>
+                <option value="reserved">Зарезервирована</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="image">Обложка</label>
+              <input class="form-input" type="file" id="image" name="image" accept="image/*">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-dark">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+            </svg>
+            Добавить книгу
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Поиск по книгам -->
+    <div class="search-wrap">
+      <svg class="search-icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="search-input" id="books-search" type="text"
+             placeholder="Поиск по названию, автору или ISBN...">
+    </div>
+
+    <!-- Список книг -->
+    <div class="books-grid" id="books-grid">
+      {% for book in books %}
+      <div class="book-card">
+        {% if book.image %}
+          <div class="book-card-image">
+            <img src="{{ book.image.url }}" alt="{{ book.title }}" loading="lazy">
+          </div>
+        {% else %}
+          <div class="book-card-image placeholder">
+            <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+          </div>
+        {% endif %}
+        <div class="book-card-title">{{ book.title }}</div>
+        <div class="book-card-author">{{ book.author }}</div>
+        <div class="book-card-meta">
+          <span class="mono text-muted">{{ book.isbn|default:"ISBN не указан" }}</span>
+          {% if book.publication_date %}
+            <span class="mono text-muted">{{ book.publication_date|date:"Y" }}</span>
+          {% endif %}
+        </div>
+        <div class="book-card-footer">
+          <span class="status-badge
+            {% if book.status == 'available' %}status-available
+            {% elif book.status == 'on_loan' %}status-on-loan
+            {% else %}status-reserved{% endif %}">
+            {{ book.get_status_display }}
+          </span>
+          {# <form method="post" action="{% url 'delete_book' book.id %}" style="display:inline;"> #}
+{#   {% csrf_token %} #}
+{#   <button type="submit" class="btn-icon-danger" #}
+{#           onclick="return confirm('Удалить книгу «{{ book.title }}»?')" #}
+{#           title="Удалить"> #}
+{#     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> #}
+{#       <polyline points="3 6 5 6 21 6"/><path stroke-linecap="round" d="M19 6l-1 14H6L5 6m5 0V4h4v2"/> #}
+{#     </svg> #}
+{#   </button> #}
+{# </form> #}
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state">Каталог пуст</div>
+      {% endfor %}
+    </div>
+
+    {% if books.has_other_pages %}
+    <div class="pagination">
+      {% if books.has_previous %}
+        <a class="page-link" href="?page=1&tab=catalog">&laquo;</a>
+        <a class="page-link" href="?page={{ books.previous_page_number }}&tab=catalog">‹ Назад</a>
+      {% endif %}
+      <span class="page-current">{{ books.number }} / {{ books.paginator.num_pages }}</span>
+      {% if books.has_next %}
+        <a class="page-link" href="?page={{ books.next_page_number }}&tab=catalog">Вперёд ›</a>
+        <a class="page-link" href="?page={{ books.paginator.num_pages }}&tab=catalog">&raquo;</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div><!-- /tab-catalog -->
+
+
+  <!-- ─── ДАННЫЕ ───────────────────────────────── -->
+  <div id="tab-data" class="tab-content {% if active_tab == 'data' %}active{% endif %}">
+
+    <div class="page-header">
+      <div class="page-icon gray">
+        <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="1.8" viewBox="0 0 24 24">
+          <ellipse cx="12" cy="5" rx="9" ry="3"/>
+          <path stroke-linecap="round" d="M3 5v14a9 3 0 0018 0V5M3 12a9 3 0 0018 0"/>
+        </svg>
+      </div>
+      <div class="page-header-text">
+        <h2>Управление данными</h2>
+        <p>Экспорт и статистика системы</p>
+      </div>
+    </div>
+
+    <div class="export-block">
+      <div class="export-block-header">Экспорт данных в CSV</div>
+
+      <div class="export-row">
+        <div>
+          <div class="export-row-label">Каталог книг</div>
+          <div class="export-row-sub">{{ total_books }} записей</div>
+        </div>
+        <a href="{% url 'export_books_csv' %}" class="btn-export">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg> Экспорт
+        </a>
+      </div>
+
+      <div class="export-row">
+        <div>
+          <div class="export-row-label">Пользователи</div>
+          <div class="export-row-sub">{{ total_users }} записей</div>
+        </div>
+        <a href="{% url 'export_users_csv' %}" class="btn-export">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg> Экспорт
+        </a>
+      </div>
+
+      <div class="export-row">
+        <div>
+          <div class="export-row-label">Выдачи</div>
+          <div class="export-row-sub">{{ total_loans }} записей</div>
+        </div>
+        <a href="{% url 'export_loans_csv' %}" class="btn-export">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg> Экспорт
+        </a>
+      </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="stats-grid">
+      <div class="stat-row">
+        <div class="stat-icon blue">📚</div>
+        <div class="stat-row-text">
+          <strong>Всего книг</strong>
+          <span>В каталоге</span>
+        </div>
+        <div class="stat-row-num">{{ total_books }}</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon purple">👥</div>
+        <div class="stat-row-text">
+          <strong>Всего пользователей</strong>
+          <span>Зарегистрировано</span>
+        </div>
+        <div class="stat-row-num">{{ total_users }}</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon green">📋</div>
+        <div class="stat-row-text">
+          <strong>Всего выдач</strong>
+          <span>За всё время</span>
+        </div>
+        <div class="stat-row-num">{{ total_loans }}</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon orange">📤</div>
+        <div class="stat-row-text">
+          <strong>Активных выдач</strong>
+          <span>Не возвращено</span>
+        </div>
+        <div class="stat-row-num">{{ active_loans }}</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-data -->
+
+
+  <!-- ─── НАСТРОЙКИ ────────────────────────────── -->
+  <div id="tab-settings" class="tab-content {% if active_tab == 'settings' %}active{% endif %}">
+
+    <div class="tab-header">
+      <h2>Настройки аккаунта</h2>
+    </div>
+
+    <div class="settings-container">
+
+      <!-- Смена пароля -->
+     <div class="settings-card">
+            <div class="settings-card-header">
+                <h3>Восстановление пароля</h3>
+            </div>
+            <div class="settings-info">
+                <p>Для сброса пароля перейдите на отдельную страницу:</p>
+                <a href="{% url 'password_reset' %}" class="btn btn-primary">
+                    Сбросить пароль
+                </a>
+                <p style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
+                    На вашу почту будет отправлена ссылка для сброса пароля
+                </p>
+            </div>
+          </div>
+
+      <!-- Смена email -->
+      <div class="settings-card">
+    <div class="settings-card-header">
+        <h3>Смена email</h3>
+    </div>
+    <div class="settings-info" style="padding: 20px;">
+        <p>Для смены email перейдите на отдельную страницу:</p>
+        <a href="{% url 'change_email_page' %}" class="btn btn-primary">
+            Перейти к смене email
+        </a>
+        <p style="margin-top: 10px; font-size: 12px; color: var(--muted);">
+            После смены email ваш логин для входа тоже изменится
+        </p>
+    </div>
+</div>
+
+    </div><!-- /settings-container -->
+
+  </div><!-- /tab-settings -->
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+</body>
+</html>
+
+    </div>
 
     <!-- MY BOOKS TAB -->
     <div id="my_books" class="tab-content {% if active_tab == 'my_books' %}active{% endif %}">
@@ -285,130 +734,50 @@
                         Только для чтения
                     </span>
                 </div>
-                <div class="settings-info">
-                    <div class="info-row">
-                        <span class="info-label">Имя</span>
-                        <span class="info-value">{{ user.first_name }}</span>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label for="first_name">Имя</label>
+                        <input class="form-input" type="text" id="first_name"
+                               value="{{ user.first_name }}" disabled>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Фамилия</span>
-                        <span class="info-value">{{ user.last_name }}</span>
+                    <div class="form-group">
+                        <label for="last_name">Фамилия</label>
+                        <input class="form-input" type="text" id="last_name"
+                               value="{{ user.last_name }}" disabled>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Email</span>
-                        <span class="info-value">{{ user.email }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Роль</span>
-                        <span class="info-value">
-                            {% if user.role == 'admin' %}
-                                Администратор
-                            {% elif user.role == 'librarian' %}
-                                Библиотекарь
-                            {% else %}
-                                Читатель
-                            {% endif %}
-                        </span>
-                    </div>
+
                 </div>
             </div>
-
-            <!-- PASSWORD SETTINGS -->
-            <div class="settings-card">
-                <div class="settings-card-header">
-                    <h3>
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display: inline; margin-right: 8px; vertical-align: middle;">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path stroke-linecap="round" d="M7 11V7a5 5 0 0110 0v4"/>
-                        </svg>
-                        Восстановление пароля
-                    </h3>
-                </div>
-                <div class="settings-info">
-                    <p>Для сброса пароля перейдите на отдельную страницу. На вашу почту будет отправлена ссылка для восстановления пароля.</p>
-                    <a href="{% url 'password_reset' %}" class="btn btn-primary">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="1"/><path d="M4.9 19A9 9 0 1 0 20.854 6.5M12 2v6m7-3l-4.2 4.2"/>
-                        </svg>
-                        Сбросить пароль
-                    </a>
-                </div>
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <h3>Восстановление пароля</h3>
             </div>
-
-            <!-- EMAIL SETTINGS -->
-            <div class="settings-card">
-                <div class="settings-card-header">
-                    <h3>
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display: inline; margin-right: 8px; vertical-align: middle;">
-                            <path stroke-linecap="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                        Смена email
-                    </h3>
-                </div>
-                <div class="settings-info">
-                    <p>Измените адрес электронной почты, связанный с вашим аккаунтом. После смены email ваш логин для входа тоже изменится.</p>
-                    <a href="{% url 'change_email_page' %}" class="btn btn-primary">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                        Изменить email
-                    </a>
-                </div>
+            <div class="settings-info">
+                <p>Для сброса пароля перейдите на отдельную страницу:</p>
+                <a href="{% url 'password_reset' %}" class="btn btn-primary">
+                    Сбросить пароль
+                </a>
+                <p style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
+                    На вашу почту будет отправлена ссылка для сброса пароля
+                </p>
             </div>
-
-            <!-- TWO-FACTOR AUTH SETTINGS -->
-            <div class="settings-card">
-                <div class="settings-card-header">
-                    <h3>
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display: inline; margin-right: 8px; vertical-align: middle;">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path stroke-linecap="round" d="M7 11V7a5 5 0 0110 0v4"/>
-                        </svg>
-                        Двухфакторная аутентификация
-                    </h3>
-                </div>
-                <div class="settings-info">
-                    <p>Защитите свой аккаунт с помощью двухфакторной аутентификации по email. Это повысит безопасность вашего аккаунта.</p>
-                    <div style="margin-top: 16px;">
-                        <span class="status-badge available">✓ Включена</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- NOTIFICATIONS SETTINGS -->
-            <div class="settings-card">
-                <div class="settings-card-header">
-                    <h3>
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display: inline; margin-right: 8px; vertical-align: middle;">
-                            <path stroke-linecap="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                        </svg>
-                        Уведомления
-                    </h3>
-                </div>
-                <div class="settings-info">
-                    <div class="notify-settings">
-                        <div class="notify-item">
-                            <div class="notify-label">
-                                <span class="notify-title">Уведомления о книгах</span>
-                                <span class="notify-desc">Получайте уведомления о доступных зарезервированных книгах</span>
-                            </div>
-                            <input type="checkbox" class="notify-toggle" checked disabled>
-                        </div>
-                        <div class="notify-item">
-                            <div class="notify-label">
-                                <span class="notify-title">Напоминания о сроках</span>
-                                <span class="notify-desc">Получайте напоминания о сроках возврата книг</span>
-                            </div>
-                            <input type="checkbox" class="notify-toggle" checked disabled>
-                        </div>
-                    </div>
-                    <p style="margin-top: 16px; font-size: 12px; color: var(--text-muted);">
-                        Уведомления отправляются на ваш email
-                    </p>
-                </div>
-            </div>
-
-        </div><!-- /settings-container -->
-
-    </div><!-- /tab-settings -->
+        </div>
+<!-- СМЕНА EMAIL -->
+<div class="settings-card">
+    <div class="settings-card-header">
+        <h3>Смена email</h3>
+    </div>
+    <div class="settings-info" style="padding: 20px;">
+        <p>Для смены email перейдите на отдельную страницу:</p>
+        <a href="{% url 'change_email_page' %}" class="btn btn-primary">
+            Перейти к смене email
+        </a>
+        <p style="margin-top: 10px; font-size: 12px; color: var(--muted);">
+            После смены email ваш логин для входа тоже изменится
+        </p>
+    </div>
+</div>
+    </div>
 
 </main>
 
