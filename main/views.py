@@ -157,71 +157,6 @@ def admin_dashboard(request):
     }
     return render(request, 'admin_dashboard.html', context)
 
-@login_required
-@admin_required
-def export_loans_csv(request):
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = 'attachment; filename="loans.csv"'
-    response.write('\ufeff'.encode('utf-8'))
-
-    writer = csv.writer(response, delimiter=';')
-    writer.writerow(['ID выдачи', 'Книга', 'Читатель', 'Дата выдачи', 'Срок возврата', 'Дата возврата', 'Статус'])
-
-    loans = Loan.objects.all().select_related('book', 'reader')
-    for loan in loans:
-        writer.writerow([
-            loan.loan_id,
-            loan.book.title,
-            loan.reader.email,
-            loan.borrow_date.strftime('%d.%m.%Y') if loan.borrow_date else '',
-            loan.due_date.strftime('%d.%m.%Y') if loan.due_date else '',
-            loan.return_date.strftime('%d.%m.%Y') if loan.return_date else '',
-            loan.get_status_display()
-        ])
-    return response
-
-@admin_required
-def export_books_csv(request):
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = 'attachment; filename="books.csv"'
-    response.write('\ufeff'.encode('utf-8'))
-
-    writer = csv.writer(response, delimiter=';')
-    writer.writerow(['ID', 'Название', 'Автор', 'ISBN', 'Статус', 'Дата публикации'])
-
-    books = Book.objects.all()
-    for book in books:
-        writer.writerow([
-            book.book_id,
-            book.title,
-            book.author,
-            book.isbn or '',
-            book.get_status_display(),
-            book.publication_date.strftime('%d.%m.%Y') if book.publication_date else ''
-        ])
-    return response
-
-@admin_required
-def export_users_csv(request):
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = 'attachment; filename="users.csv"'
-    response.write('\ufeff'.encode('utf-8'))
-
-    writer = csv.writer(response, delimiter=';')
-    writer.writerow(['ID', 'Email', 'Имя', 'Фамилия', 'Роль', 'Дата регистрации'])
-
-    users = User.objects.all()
-    for user in users:
-        writer.writerow([
-            user.id,
-            user.email,
-            user.first_name,
-            user.last_name,
-            user.get_role_display(),
-            user.date_joined.strftime('%d.%m.%Y %H:%M')
-        ])
-    return response
-
 @admin_required
 def add_book(request):
     if request.method == 'POST':
@@ -558,7 +493,7 @@ def admin_panel(request):
 @login_required
 def export_books_csv(request):
     """Экспорт каталога книг в CSV"""
-    if request.user.role != User.Roles.ADMIN:
+    if request.user.role not in [User.Roles.ADMIN, User.Roles.LIBRARIAN]:
         messages.error(request, 'Доступ запрещён.')
         return redirect('dashboard')
     
@@ -672,41 +607,7 @@ def reader_profile(request):
         messages.success(request, 'Профиль обновлён.')
     return redirect('dashboard')
 
-@login_required
-@user_passes_test(lambda u: u.role == 'librarian') # ВРЕМЕННОЕ РЕШЕНИЕ, ПОКА НЕ РЕАЛИЗОВАНО ПОЛНОСТЬЮ РАЗГРАНИЧЕНИЕ РОЛЕЙ
-def export_books_csv(request):
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = 'attachment; filename="books_catalog.csv"'
 
-    response.write('\ufeff'.encode('utf-8'))
-
-    writer = csv.writer(response, delimiter=';', quoting=csv.QUOTE_MINIMAL)
-
-    writer.writerow(['ID', 'Название', 'Автор', 'ISBN', 'Статус', 'Дата публикации'])
-    books = Book.objects.all()
-    for book in books:
-        writer.writerow([
-            book.book_id,
-            book.title,
-            book.author,
-            book.isbn or '',
-            book.get_status_display(),
-            book.publication_date.strftime('%d.%m.%Y') if book.publication_date else ''
-        ])
-
-    return response
-
-@login_required
-@user_passes_test(lambda u: u.role == 'librarian')
-def return_book(request, loan_id):
-    loan = get_object_or_404(Loan, loan_id=loan_id, return_date__isnull=True)
-    if request.method == 'POST':
-        loan.return_book()
-        messages.success(request, f'Книга "{loan.book.title}" успешно возвращена.')
-    else:
-        messages.error(request, 'Ошибка')
-
-    return redirect('dashboard')
 
 @login_required
 def change_email(request):
