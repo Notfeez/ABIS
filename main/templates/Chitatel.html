@@ -285,50 +285,130 @@
                         Только для чтения
                     </span>
                 </div>
-                <div class="settings-form">
-                    <div class="form-group">
-                        <label for="first_name">Имя</label>
-                        <input class="form-input" type="text" id="first_name"
-                               value="{{ user.first_name }}" disabled>
+                <div class="settings-info">
+                    <div class="info-row">
+                        <span class="info-label">Имя</span>
+                        <span class="info-value">{{ user.first_name }}</span>
                     </div>
-                    <div class="form-group">
-                        <label for="last_name">Фамилия</label>
-                        <input class="form-input" type="text" id="last_name"
-                               value="{{ user.last_name }}" disabled>
+                    <div class="info-row">
+                        <span class="info-label">Фамилия</span>
+                        <span class="info-value">{{ user.last_name }}</span>
                     </div>
-
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ user.email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Роль</span>
+                        <span class="info-value">
+                            {% if user.role == 'admin' %}
+                                Администратор
+                            {% elif user.role == 'librarian' %}
+                                Библиотекарь
+                            {% else %}
+                                Читатель
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
             </div>
-        <div class="settings-card">
-            <div class="settings-card-header">
-                <h3>Восстановление пароля</h3>
+
+            <!-- PASSWORD SETTINGS -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display: inline; margin-right: 8px; vertical-align: middle;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path stroke-linecap="round" d="M7 11V7a5 5 0 0110 0v4"/>
+                        </svg>
+                        Восстановление пароля
+                    </h3>
+                </div>
+                <div class="settings-info">
+                    <p>Для сброса пароля перейдите на отдельную страницу. На вашу почту будет отправлена ссылка для восстановления пароля.</p>
+                    <a href="{% url 'password_reset' %}" class="btn btn-primary">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="1"/><path d="M4.9 19A9 9 0 1 0 20.854 6.5M12 2v6m7-3l-4.2 4.2"/>
+                        </svg>
+                        Сбросить пароль
+                    </a>
+                </div>
             </div>
-            <div class="settings-info">
-                <p>Для сброса пароля перейдите на отдельную страницу:</p>
-                <a href="{% url 'password_reset' %}" class="btn btn-primary">
-                    Сбросить пароль
-                </a>
-                <p style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
-                    На вашу почту будет отправлена ссылка для сброса пароля
-                </p>
+
+            <!-- EMAIL SETTINGS -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display: inline; margin-right: 8px; vertical-align: middle;">
+                            <path stroke-linecap="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Смена email
+                    </h3>
+                </div>
+                <div class="settings-info">
+                    <p>Измените адрес электронной почты, связанный с вашим аккаунтом. После смены email ваш логин для входа тоже изменится.</p>
+                    <a href="{% url 'change_email_page' %}" class="btn btn-primary">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Изменить email
+                    </a>
+                </div>
             </div>
-        </div>
-<!-- СМЕНА EMAIL -->
-<div class="settings-card">
-    <div class="settings-card-header">
-        <h3>Смена email</h3>
-    </div>
-    <div class="settings-info" style="padding: 20px;">
-        <p>Для смены email перейдите на отдельную страницу:</p>
-        <a href="{% url 'change_email_page' %}" class="btn btn-primary">
-            Перейти к смене email
-        </a>
-        <p style="margin-top: 10px; font-size: 12px; color: var(--muted);">
-            После смены email ваш логин для входа тоже изменится
-        </p>
-    </div>
-</div>
-    </div>
+
+            <!-- TWO-FACTOR AUTH SETTINGS -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display: inline; margin-right: 8px; vertical-align: middle;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path stroke-linecap="round" d="M7 11V7a5 5 0 0110 0v4"/>
+                        </svg>
+                        Двухфакторная аутентификация
+                    </h3>
+                </div>
+                <div class="settings-info">
+                    <p>Защитите свой аккаунт с помощью двухфакторной аутентификации по email. Это повысит безопасность вашего аккаунта.</p>
+                    <div style="margin-top: 16px;">
+                        <span class="status-badge available">✓ Включена</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTIFICATIONS SETTINGS -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display: inline; margin-right: 8px; vertical-align: middle;">
+                            <path stroke-linecap="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        Уведомления
+                    </h3>
+                </div>
+                <div class="settings-info">
+                    <div class="notify-settings">
+                        <div class="notify-item">
+                            <div class="notify-label">
+                                <span class="notify-title">Уведомления о книгах</span>
+                                <span class="notify-desc">Получайте уведомления о доступных зарезервированных книгах</span>
+                            </div>
+                            <input type="checkbox" class="notify-toggle" checked disabled>
+                        </div>
+                        <div class="notify-item">
+                            <div class="notify-label">
+                                <span class="notify-title">Напоминания о сроках</span>
+                                <span class="notify-desc">Получайте напоминания о сроках возврата книг</span>
+                            </div>
+                            <input type="checkbox" class="notify-toggle" checked disabled>
+                        </div>
+                    </div>
+                    <p style="margin-top: 16px; font-size: 12px; color: var(--text-muted);">
+                        Уведомления отправляются на ваш email
+                    </p>
+                </div>
+            </div>
+
+        </div><!-- /settings-container -->
+
+    </div><!-- /tab-settings -->
 
 </main>
 

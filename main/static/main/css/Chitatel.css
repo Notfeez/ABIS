@@ -1549,6 +1549,89 @@ main {
     display: block;
 }
 
+/* ============================================================================
+   NOTIFICATION SETTINGS
+   ============================================================================ */
+
+.notify-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.notify-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+}
+
+.notify-item:hover {
+    background: #f1f5f9;
+    border-color: var(--primary-light);
+}
+
+.notify-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.notify-title {
+    font-weight: var(--fw-semibold);
+    color: var(--text);
+    font-size: var(--font-size-base);
+}
+
+.notify-desc {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.notify-toggle {
+    width: 48px;
+    height: 28px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background: var(--border);
+    border: none;
+    border-radius: 20px;
+    position: relative;
+    transition: background 0.3s ease;
+    flex-shrink: 0;
+}
+
+.notify-toggle::before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--white);
+    top: 2px;
+    left: 2px;
+    transition: left 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.notify-toggle:checked {
+    background: var(--success);
+}
+
+.notify-toggle:checked::before {
+    left: 22px;
+}
+
+.notify-toggle:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .book-cover.placeholder {
     background: #e5e7eb;
     color: #9ca3af;
