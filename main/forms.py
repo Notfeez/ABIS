@@ -58,9 +58,10 @@ class UserProfileForm(forms.ModelForm):
 class BookForm(forms.ModelForm):
     class Meta:
         model = Book
-        fields = ['title', 'author', 'isbn', 'publication_date', 'status']
+        fields = ['title', 'author', 'isbn', 'publication_date', 'status', 'image']
         widgets = {
             'publication_date': forms.DateInput(attrs={'type': 'date'}),
+            'image': forms.FileInput(attrs={'accept': 'image/*'}),
         }
         
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm

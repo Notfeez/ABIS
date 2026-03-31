@@ -225,7 +225,7 @@ def export_users_csv(request):
 @admin_required
 def add_book(request):
     if request.method == 'POST':
-        form = BookForm(request.POST)
+        form = BookForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, 'Книга успешно добавлена')
