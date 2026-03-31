@@ -56,7 +56,6 @@
     </div>
 </nav>
 
-<!-- MAIN CONTENT -->
 <main>
     {% if messages %}
         <div class="messages">
@@ -84,8 +83,6 @@
         </div>
     </div>
 
-    <!-- TAB CONTENT -->
-    
     <!-- CATALOG TAB -->
     <div id="catalog" class="tab-content {% if active_tab == 'catalog' %}active{% endif %}">
         <div class="tab-header">
@@ -150,6 +147,7 @@
                 </div>
             {% endif %}
         </div>
+    </div> <!-- /catalog -->
 
     <!-- MY BOOKS TAB -->
     <div id="my_books" class="tab-content {% if active_tab == 'my_books' %}active{% endif %}">
@@ -205,7 +203,7 @@
                 </div>
             {% endif %}
         </div>
-    </div>
+    </div> <!-- /my_books -->
 
     <!-- MY REQUESTS TAB -->
     <div id="my_requests" class="tab-content {% if active_tab == 'my_requests' %}active{% endif %}">
@@ -265,7 +263,7 @@
                 </div>
             {% endif %}
         </div>
-    </div>
+    </div> <!-- /my_requests -->
 
     <!-- SETTINGS TAB -->
     <div id="settings" class="tab-content {% if active_tab == 'settings' %}active{% endif %}">
@@ -296,40 +294,40 @@
                         <input class="form-input" type="text" id="last_name"
                                value="{{ user.last_name }}" disabled>
                     </div>
-
                 </div>
             </div>
-        <div class="settings-card">
-            <div class="settings-card-header">
-                <h3>Восстановление пароля</h3>
-            </div>
-            <div class="settings-info">
-                <p>Для сброса пароля перейдите на отдельную страницу:</p>
-                <a href="{% url 'password_reset' %}" class="btn btn-primary">
-                    Сбросить пароль
-                </a>
-                <p style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
-                    На вашу почту будет отправлена ссылка для сброса пароля
-                </p>
-            </div>
-        </div>
-<!-- СМЕНА EMAIL -->
-<div class="settings-card">
-    <div class="settings-card-header">
-        <h3>Смена email</h3>
-    </div>
-    <div class="settings-info" style="padding: 20px;">
-        <p>Для смены email перейдите на отдельную страницу:</p>
-        <a href="{% url 'change_email_page' %}" class="btn btn-primary">
-            Перейти к смене email
-        </a>
-        <p style="margin-top: 10px; font-size: 12px; color: var(--muted);">
-            После смены email ваш логин для входа тоже изменится
-        </p>
-    </div>
-</div>
-    </div>
 
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3>Восстановление пароля</h3>
+                </div>
+                <div class="settings-info">
+                    <p>Для сброса пароля перейдите на отдельную страницу:</p>
+                    <a href="{% url 'password_reset' %}" class="btn btn-primary">
+                        Сбросить пароль
+                    </a>
+                    <p style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
+                        На вашу почту будет отправлена ссылка для сброса пароля
+                    </p>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3>Смена email</h3>
+                </div>
+                <div class="settings-info" style="padding: 20px;">
+                    <p>Для смены email перейдите на отдельную страницу:</p>
+                    <a href="{% url 'change_email_page' %}" class="btn btn-primary">
+                        Перейти к смене email
+                    </a>
+                    <p style="margin-top: 10px; font-size: 12px; color: var(--muted);">
+                        После смены email ваш логин для входа тоже изменится
+                    </p>
+                </div>
+            </div>
+        </div> <!-- /settings-container -->
+    </div> <!-- /settings -->
 </main>
 
 </body>
