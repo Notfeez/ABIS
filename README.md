@@ -70,14 +70,7 @@ v1.0 2026-04-30 Шилов З., Трофименко Д., Титов И., Сид
 
 Исходный кейс проекта:
 
-· Кейс: Автоматизация библиотечного учета
-
-Контрольные точки:
-
-· CP1: стартовый комплект
-· CP2: процессы и сценарии
-· CP3: данные и интеграция
-· CP4: финальная сборка
+· Кейс 8: Автоматизация библиотечного учета
 
 Демонстрационный стенд:
 
@@ -140,18 +133,7 @@ v1.0 2026-04-30 Шилов З., Трофименко Д., Титов И., Сид
 Как читать репозиторий
 
 Путь Описание
-docs/README.md Карта документации
-docs/99-standards/ Правила именования и версионирования
-docs/90-checkpoints/ Контрольные срезы по этапам
-docs/98-source-materials/ Исходный кейс и внешние материалы
-docs/00-governance/ Устав, роли, правила работы
-docs/01-discovery/ Исследование, персоны
-docs/02-requirements/ Требования, user stories
-docs/03-planning/ WBS, риски, календарный план
-docs/04-architecture/ Архитектура, контекст системы
-docs/05-data-and-integration/ ERD, контракты
-docs/06-final-specification/ Финальное ТЗ
-docs/07-validation-and-delivery/ Сценарии проверки, инструкции
+README.md Карта документации
 main/ Код Django-приложения
 
 ---
@@ -160,19 +142,7 @@ main/ Код Django-приложения
 
 ```
 abis/
-├── docs/
-│ ├── 00-governance/
-│ ├── 01-discovery/
-│ ├── 02-requirements/
-│ ├── 03-planning/
-│ ├── 04-architecture/
-│ ├── 05-data-and-integration/
-│ ├── 06-final-specification/
-│ ├── 07-validation-and-delivery/
-│ ├── 90-checkpoints/
-│ ├── 98-source-materials/
-│ ├── 99-standards/
-│ └── README.md
+├── README.md
 ├── main/
 │ ├── models.py
 │ ├── views.py
