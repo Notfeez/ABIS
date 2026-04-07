@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>АБИС — Редактировать книгу</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'main/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'main/css/Chitatel.css' %}">
+    <link rel="stylesheet" href="{% static 'main/css/admin-new.css' %}">>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+    <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="10" fill="#155DFC"/>
+            <path d="M24 14L28 28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 14V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 16V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 12V28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="logo-text">
+            <h1>АБИС — Библиотека</h1>
+            <p>Редактирование книги</p>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="user-info">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
+            </svg>
+            {{ user.first_name }} {{ user.last_name }} 
+        </div>
+        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Выйти
+            </button>
+        </form>
+    </div>
+</header>
+
+<main style="max-width: 700px; margin: 40px auto; padding: 0 20px;">
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h2 style="margin-bottom: 20px;">{{ book.title }}</h2>
+
+        {% if book.image %}
+            <div style="margin-bottom: 20px;">
+                <img src="{{ book.image.url }}" alt="{{ book.title }}" style="max-width: 200px; border-radius: 8px;">
+            </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="form-label" for="id_title">Название *</label>
+                {{ form.title }}
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="form-label" for="id_author">Автор *</label>
+                {{ form.author }}
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="form-label" for="id_isbn">ISBN</label>
+                {{ form.isbn }}
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="form-label" for="id_publication_date">Дата публикации</label>
+                {{ form.publication_date }}
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="form-label" for="id_status">Статус</label>
+                {{ form.status }}
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="form-label" for="id_image">Обложка</label>
+                {{ form.image }}
+                {% if form.image.help_text %}
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">{{ form.image.help_text }}</p>
+                {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-error" style="margin-bottom: 15px;">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    Сохранить изменения
+                </button>
+                <a href="{% url 'admin_dashboard' %}?tab=catalog" class="btn btn-cancel" style="flex: 1; text-align: center; text-decoration: none;">
+                    Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        {{ form.title.id_html|safe }}
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text);
+            background: white;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(21, 93, 252, 0.1);
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 14px;
+        }
+    </style>
+</main>
+
+</body>
+</html>

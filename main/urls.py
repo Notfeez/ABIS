@@ -33,6 +33,8 @@ urlpatterns = [
     path('admin/export/users/', views.export_users_csv, name='export_users_csv'),
     path('admin/users/', views.user_list, name='user_list'),
     path('admin/add-book/', views.add_book, name='add_book'),
+    path('admin/edit-book/<uuid:book_id>/', views.edit_book, name='edit_book'),
+    path('admin/delete-book/<uuid:book_id>/', views.delete_book, name='delete_book'),
     path('admin/toggle-librarian/<uuid:user_id>/', views.toggle_librarian, name='toggle_librarian'),
     path('admin/2fa/', views.admin_2fa, name='admin_2fa'),
     path('admin/change-password/', views.admin_change_password, name='admin_change_password'),
@@ -71,5 +73,4 @@ urlpatterns = [
     
     # Обработка формы (POST)
     path('change-email/submit/', views.change_email, name='change_email'),
-    path('admin/delete-book/<uuid:book_id>/', views.delete_book, name='delete_book'),
 ]

@@ -235,6 +235,19 @@ def add_book(request):
     return render(request, 'add_book.html', {'form': form})
 
 @admin_required
+def edit_book(request, book_id):
+    book = get_object_or_404(Book, book_id=book_id)
+    if request.method == 'POST':
+        form = BookForm(request.POST, request.FILES, instance=book)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Книга успешно обновлена')
+            return redirect(reverse('admin_dashboard') + '?tab=catalog')
+    else:
+        form = BookForm(instance=book)
+    return render(request, 'edit_book.html', {'form': form, 'book': book})
+
+@admin_required
 def user_list(request):
     users_list = User.objects.all().order_by('email')
     paginator = Paginator(users_list, 100)
