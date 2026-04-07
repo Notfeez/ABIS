@@ -626,40 +626,11 @@ def remove_librarian(request, user_id):
     
     return redirect('dashboard?tab=users')
 
-@login_required
-def change_email(request):
-    if request.method == 'POST':
-        new_email = request.POST.get('new_email')
-        if User.objects.filter(email=new_email).exclude(pk=request.user.pk).exists():
-            messages.error(request, 'Этот email уже используется другим пользователем.')
-        else:
-            request.user.email = new_email
-            request.user.save()
-            messages.success(request, 'Email успешно изменён.')
-        return redirect('dashboard')
-    return redirect('dashboard')
+
 
 @login_required
-def reader_profile(request):
-    if request.method == 'POST':
-        user = request.user
-        user.first_name = request.POST.get('first_name', '')
-        user.last_name = request.POST.get('last_name', '')
-        user.save()
-        messages.success(request, 'Профиль обновлён.')
-    return redirect('dashboard')
-
-@login_required
-@user_passes_test(lambda u: u.role == 'librarian')
-def return_book(request, loan_id):
-    loan = get_object_or_404(Loan, loan_id=loan_id, return_date__isnull=True)
-    if request.method == 'POST':
-        loan.return_book()
-        messages.success(request, f'Книга "{loan.book.title}" успешно возвращена.')
-    else:
-        messages.error(request, 'Ошибка')
-
-    return redirect('dashboard')
+def change_email_page(request):
+    return render(request, 'change_email.html')
 
 @login_required
 def change_email(request):
@@ -680,14 +651,11 @@ def change_email(request):
             user.username = new_email
             user.save()
             messages.success(request, 'Email успешно изменен!')
+            return redirect(reverse('dashboard') + '?tab=settings')
             
-        return redirect('dashboard?tab=settings')
+        return render(request, 'change_email.html')
     
-    return redirect('dashboard?tab=settings')
-
-@login_required
-def change_email_page(request):
-    return render(request, 'change_email.html')
+    return redirect('change_email_page')
 
 def generate_2fa_code():
     return str(random.randint(100000, 999999))
