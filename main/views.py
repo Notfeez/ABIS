@@ -416,8 +416,7 @@ def librarian_requests(request):
     if request.user.role != User.Roles.LIBRARIAN:
         messages.error(request, 'Доступ запрещён.')
         return redirect('dashboard')
-    requests_list = Request.objects.filter(status='pending').select_related('reader', 'book')
-    return render(request, 'librarian_requests.html', {'requests': requests_list})
+    return redirect('librarian')
 
 @login_required
 def approve_request(request, request_id):
