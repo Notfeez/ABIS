@@ -59,18 +59,17 @@
 
 <!-- ═══════════════════════════════════════ MAIN ══ -->
 <main>
-    {% if messages %}
-    <div class="messages">
-      {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">
-        {{ message }}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
     <!-- CATALOG TAB -->
     <div id="catalog" class="tab-content" style="display: block;">
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
       <div class="tab-header">
         <h2>Каталог Библиотеки</h2>
         <div class="search-wrap">
@@ -183,6 +182,15 @@
 
     <!-- USERS TAB -->
     <div id="users" class="tab-content" style="display: none;">
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
       <div class="tab-header">
         <h2>Управление пользователями</h2>
         <div class="search-wrap">
@@ -246,6 +254,15 @@
 
     <!-- STATISTICS TAB -->
     <div id="data" class="tab-content" style="display: none;">
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
       <div class="tab-header">
         <h2>Статистика и Данные</h2>
       </div>
@@ -353,6 +370,15 @@
 
     <!-- SETTINGS TAB -->
     <div id="settings" class="tab-content" style="display: none;">
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
       <div class="tab-header">
         <h2>Настройки</h2>
       </div>
@@ -397,9 +423,31 @@
 <script>
 // Initialize tab switching
 function initTabs() {
+  // Get active tab from URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const activeTab = urlParams.get('tab') || 'catalog';
+  
   const tabButtons = document.querySelectorAll('.nav-tab');
   const tabContents = document.querySelectorAll('.tab-content');
   
+  // Set active tab from URL
+  tabContents.forEach(tab => {
+    tab.style.display = 'none';
+  });
+  tabButtons.forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  const selectedTab = document.getElementById(activeTab);
+  if (selectedTab) {
+    selectedTab.style.display = 'block';
+  }
+  const selectedButton = document.querySelector(`.nav-tab[data-tab="${activeTab}"]`);
+  if (selectedButton) {
+    selectedButton.classList.add('active');
+  }
+  
+  // Add click listeners to buttons
   tabButtons.forEach(button => {
     button.addEventListener('click', function(e) {
       e.preventDefault();
@@ -422,6 +470,8 @@ function initTabs() {
       if (selectedTab) {
         selectedTab.style.display = 'block';
         this.classList.add('active');
+        // Update URL without reload
+        window.history.pushState({tab: tabName}, '', '?tab=' + tabName);
       }
     });
   });
@@ -434,23 +484,28 @@ if (document.readyState === 'loading') {
   initTabs();
 }
 
-// Other functions
+// Filter functions for search
 function filterBooks() {
-  const input = document.getElementById('searchInput').toLowerCase();
+  const input = document.getElementById('searchInput').value.toLowerCase();
   const books = document.querySelectorAll('#booksContainer .book-item');
   
   books.forEach(book => {
-    const text = book.getAttribute('data-title') + ' ' + book.getAttribute('data-author') + ' ' + book.getAttribute('data-isbn');
+    const title = book.getAttribute('data-title') || '';
+    const author = book.getAttribute('data-author') || '';
+    const isbn = book.getAttribute('data-isbn') || '';
+    const text = title + ' ' + author + ' ' + isbn;
     book.style.display = text.includes(input) ? '' : 'none';
   });
 }
 
 function filterUsers() {
-  const input = document.getElementById('usersSearch').toLowerCase();
+  const input = document.getElementById('usersSearch').value.toLowerCase();
   const users = document.querySelectorAll('#usersList .user-card');
   
   users.forEach(user => {
-    const text = user.textContent.toLowerCase();
+    const h3Text = user.querySelector('h3').textContent.toLowerCase();
+    const emailText = user.querySelector('.user-email').textContent.toLowerCase();
+    const text = h3Text + ' ' + emailText;
     user.style.display = text.includes(input) ? '' : 'none';
   });
 }
