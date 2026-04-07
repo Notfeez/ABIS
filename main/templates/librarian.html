@@ -115,7 +115,10 @@
                   </div>
                   <div class="card-actions">
                     <a href="{% url 'approve_request' req.request_id %}" class="btn btn-approve">Одобрить</a>
-                    <a href="{% url 'reject_request' req.request_id %}" class="btn btn-reject">Отклонить</a>
+                    <form method="post" action="{% url 'reject_request' req.request_id %}" style="display: inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-reject" onclick="return confirm('Отклонить этот запрос? Это действие удалит запрос.'); ">Отклонить</button>
+                    </form>
                   </div>
                 </div>
               </div>

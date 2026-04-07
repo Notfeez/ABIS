@@ -174,17 +174,20 @@
                         <div class="my-book-info">
                             <h3>{{ loan.book.title }}</h3>
                             <p class="my-book-author">{{ loan.book.author }}</p>
+                            <p class="my-book-isbn">ISBN: {{ loan.book.isbn|default:"—" }}</p>
                             {% if loan.is_overdue %}
                                 <span class="status-badge overdue" style="margin-top: 8px;">⚠️ ПРОСРОЧЕНА на {{ loan.days_overdue }} дн.</span>
                             {% elif loan.is_due_soon %}
                                 <span class="status-badge warning" style="margin-top: 8px;">⏰ Осталось {{ loan.days_until_due }} дн.</span>
+                            {% else %}
+                                <span class="status-badge active" style="margin-top: 8px;">✓ Активна</span>
                             {% endif %}
                         </div>
                     </div>
                     
                     <div class="my-book-details">
                         <div class="detail-row">
-                            <span class="detail-label">Взята:</span>
+                            <span class="detail-label">Дней взята:</span>
                             <span class="detail-value">{{ loan.borrow_date|date:"d.m.Y" }}</span>
                         </div>
                         <div class="detail-row">
@@ -193,14 +196,40 @@
                                 {{ loan.due_date|date:"d.m.Y" }}
                             </span>
                         </div>
+                        
+                        <!-- Progress Bar -->
+                        <div class="detail-row" style="margin-top: 12px; flex-direction: column; align-items: stretch;">
+                            <span class="detail-label" style="margin-right: 0; margin-bottom: 8px;">Время на возврат:</span>
+                            {% if loan.is_overdue %}
+                                <div class="progress-bar overdue-bar">
+                                    <div class="progress-fill" style="width: 100%; background: #ef4444;"></div>
+                                </div>
+                                <span class="progress-text danger">ПРОСРОЧЕНО на {{ loan.days_overdue }} дн.</span>
+                            {% else %}
+                                <div class="progress-bar" style="overflow: hidden;">
+                                    {% with total_days=14 days_used=loan.borrow_date|timesince:loan.due_date %}
+                                        <div class="progress-fill {% if loan.is_due_soon %}warning{% else %}normal{% endif %}" 
+                                             style="width: {{ loan.borrow_date|timesince:loan.due_date }}%;"></div>
+                                    {% endwith %}
+                                </div>
+                                <span class="progress-text">Осталось: 
+                                    {% if loan.is_due_soon %}
+                                        <strong class="danger">{{ loan.days_until_due }} дн.</strong>
+                                    {% else %}
+                                        <strong>{{ loan.days_until_due }} дн.</strong>
+                                    {% endif %}
+                                </span>
+                            {% endif %}
+                        </div>
+                        
                         {% if loan.is_overdue or loan.is_due_soon %}
-                        <div class="detail-row">
+                        <div class="detail-row" style="margin-top: 12px;">
                             <span class="detail-label">Статус:</span>
                             <span class="detail-value {% if loan.is_overdue %}text-danger{% else %}text-warning{% endif %}">
                                 {% if loan.is_overdue %}
-                                    ПРОСРОЧЕНА
+                                    ⚠️ ПРОСРОЧЕНА
                                 {% else %}
-                                    Срок заканчивается завтра
+                                    ⏰ Срок заканчивается завтра
                                 {% endif %}
                             </span>
                         </div>
