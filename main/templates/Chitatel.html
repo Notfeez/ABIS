@@ -158,43 +158,56 @@
         <div class="books-grid">
             {% if my_books %}
                 {% for loan in my_books %}
-                <div class="book-card {% if loan.is_overdue %}overdue{% endif %}">
-                    {% if loan.book.image %}
-                      <div class="book-card-image">
-                        <img src="{{ loan.book.image.url }}" alt="{{ loan.book.title }}" loading="lazy">
-                      </div>
-                    {% else %}
-                      <div class="book-card-image placeholder">
-                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                      </div>
-                    {% endif %}
-                    <div class="card-header">
-                        <div>
-                            <h3>{{ loan.book.title }}</h3>
-                            <p class="card-author">{{ loan.book.author }}</p>
-                        </div>
-                        {% if loan.is_overdue %}
-                            <div class="overdue-badge">ПРОСРОЧЕНА</div>
+                <div class="my-book-card {% if loan.is_overdue %}card-overdue{% elif loan.is_due_soon %}card-due-soon{% endif %}">
+                    <div class="my-book-card-header">
+                        {% if loan.book.image %}
+                          <div class="my-book-cover">
+                            <img src="{{ loan.book.image.url }}" alt="{{ loan.book.title }}" loading="lazy">
+                          </div>
+                        {% else %}
+                          <div class="my-book-cover placeholder">
+                            <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                          </div>
                         {% endif %}
+                        <div class="my-book-info">
+                            <h3>{{ loan.book.title }}</h3>
+                            <p class="my-book-author">{{ loan.book.author }}</p>
+                            {% if loan.is_overdue %}
+                                <span class="status-badge overdue" style="margin-top: 8px;">⚠️ ПРОСРОЧЕНА на {{ loan.days_overdue }} дн.</span>
+                            {% elif loan.is_due_soon %}
+                                <span class="status-badge warning" style="margin-top: 8px;">⏰ Осталось {{ loan.days_until_due }} дн.</span>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="card-details">
+                    
+                    <div class="my-book-details">
                         <div class="detail-row">
                             <span class="detail-label">Взята:</span>
                             <span class="detail-value">{{ loan.borrow_date|date:"d.m.Y" }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Срок возврата:</span>
-                            <span class="detail-value {% if loan.is_overdue %}overdue-text{% endif %}">
+                            <span class="detail-value {% if loan.is_overdue %}text-danger{% elif loan.is_due_soon %}text-warning{% endif %}">
                                 {{ loan.due_date|date:"d.m.Y" }}
+                            </span>
+                        </div>
+                        {% if loan.is_overdue or loan.is_due_soon %}
+                        <div class="detail-row">
+                            <span class="detail-label">Статус:</span>
+                            <span class="detail-value {% if loan.is_overdue %}text-danger{% else %}text-warning{% endif %}">
                                 {% if loan.is_overdue %}
-                                    <span class="days-overdue">(на {{ loan.days_overdue }} дн.)</span>
+                                    ПРОСРОЧЕНА
+                                {% else %}
+                                    Срок заканчивается завтра
                                 {% endif %}
                             </span>
                         </div>
+                        {% endif %}
                     </div>
-                    <p class="card-note">ℹ️ Книгу нужно вернуть в библиотеку в установленный срок</p>
+                    
+                    <p class="card-note">ℹ️ Пожалуйста, верните книгу в библиотеку в установленный срок</p>
                 </div>
                 {% endfor %}
             {% else %}

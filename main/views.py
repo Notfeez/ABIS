@@ -331,7 +331,7 @@ def Chitatel(request):
     on_loan_books = Book.objects.filter(status='on_loan').count()
     all_books = Book.objects.all()
     my_books = Loan.objects.filter(reader=request.user, return_date__isnull=True).select_related('book')
-    my_requests = Request.objects.filter(reader=request.user).order_by('-request_date')  # добавить
+    my_requests = Request.objects.filter(reader=request.user, status__in=['pending', 'approved']).order_by('-request_date')
 
     active_tab = request.GET.get('tab', 'catalog')
     return render(request, 'Chitatel.html', {
@@ -348,6 +348,12 @@ def Chitatel(request):
 def request_book(request, book_id):
     if request.user.role != User.Roles.READER:
         messages.error(request, 'Только читатели могут запрашивать книги.')
+        return redirect('dashboard')
+
+    # Проверяем переопроченные книги
+    overdue_loans = Loan.objects.filter(reader=request.user, return_date__isnull=True, due_date__lt=timezone.now().date())
+    if overdue_loans.exists():
+        messages.error(request, 'Вы не можете запрашивать новые книги пока не вернёте переопроченные. Пожалуйста, вернитесь в библиотеку.')
         return redirect('dashboard')
 
     book = get_object_or_404(Book, book_id=book_id)
@@ -445,11 +451,9 @@ def reject_request(request, request_id):
         return redirect('dashboard')
     book_request = get_object_or_404(Request, request_id=request_id, status='pending')
     if request.method == 'POST':
-        comment = request.POST.get('comment', '')
-        book_request.status = 'rejected'
-        book_request.librarian_comment = comment
-        book_request.save()
-        messages.success(request, f'Запрос на книгу "{book_request.book.title}" отклонён.')
+        book_title = book_request.book.title
+        book_request.delete()
+        messages.success(request, f'Запрос на книгу "{book_title}" отклонён и удалён.')
         return redirect('librarian_requests')
     return redirect('dashboard')
 

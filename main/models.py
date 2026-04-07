@@ -82,10 +82,23 @@ class Loan(models.Model):
             return False
         return self.due_date < timezone.now().date()
     
+    def days_until_due(self):
+        """Дней до срока возврата"""
+        if self.return_date:
+            return 0
+        delta = (self.due_date - timezone.now().date()).days
+        return max(0, delta)
+    
     def days_overdue(self):
         if not self.is_overdue():
             return 0
         return (timezone.now().date() - self.due_date).days
+    
+    def is_due_soon(self):
+        """Правда если осталось 1 день или меньше"""
+        if self.return_date:
+            return False
+        return self.days_until_due() <= 1 and not self.is_overdue()
     
     def return_book(self):
         self.return_date = timezone.now().date()
