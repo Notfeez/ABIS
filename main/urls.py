@@ -19,6 +19,7 @@ urlpatterns = [
     path('reader/my_books/', views.my_books_list, name='my_books'),
     
     # Librarian 
+    path('librarian/', views.librarian, name='librarian'),
     path('librarian/requests/', views.librarian_requests, name='librarian_requests'),
     path('librarian/approve/<uuid:request_id>/', views.approve_request, name='approve_request'),
     path('librarian/reject/<uuid:request_id>/', views.reject_request, name='reject_request'),
