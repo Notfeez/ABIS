@@ -568,60 +568,7 @@ def admin_panel(request):
     
     return render(request, 'admin.html', context)
 
-@login_required
-def export_books_csv(request):
-    """Экспорт каталога книг в CSV"""
-    if request.user.role != User.Roles.ADMIN:
-        messages.error(request, 'Доступ запрещён.')
-        return redirect('dashboard')
-    
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = f'attachment; filename="books_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
-    
-    response.write('\ufeff')
-    
-    writer = csv.writer(response)
-    writer.writerow(['ID', 'Название', 'Автор', 'ISBN', 'Статус', 'Дата публикации'])
-    
-    books = Book.objects.all().order_by('title')
-    for book in books:
-        writer.writerow([
-            str(book.book_id),
-            book.title,
-            book.author,
-            book.isbn or '—',
-            book.get_status_display(),
-            book.publication_date or '—',
-        ])
-    
-    return response
 
-@login_required
-def export_users_csv(request):
-    if request.user.role != User.Roles.ADMIN:
-        messages.error(request, 'Доступ запрещён.')
-        return redirect('dashboard')
-    
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = f'attachment; filename="users_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
-    
-    response.write('\ufeff')
-    
-    writer = csv.writer(response)
-    writer.writerow(['ID', 'Email', 'Имя', 'Фамилия', 'Роль', 'Дата регистрации'])
-    
-    users = User.objects.all().order_by('email')
-    for user in users:
-        writer.writerow([
-            str(user.id),
-            user.email,
-            user.first_name or '—',
-            user.last_name or '—',
-            user.get_role_display(),
-            user.date_joined.strftime("%d.%m.%Y %H:%M"),
-        ])
-    
-    return response
 
 @login_required
 def make_librarian(request, user_id):
@@ -684,30 +631,6 @@ def reader_profile(request):
         user.save()
         messages.success(request, 'Профиль обновлён.')
     return redirect('dashboard')
-
-@login_required
-@user_passes_test(lambda u: u.role == 'librarian') # ВРЕМЕННОЕ РЕШЕНИЕ, ПОКА НЕ РЕАЛИЗОВАНО ПОЛНОСТЬЮ РАЗГРАНИЧЕНИЕ РОЛЕЙ
-def export_books_csv(request):
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = 'attachment; filename="books_catalog.csv"'
-
-    response.write('\ufeff'.encode('utf-8'))
-
-    writer = csv.writer(response, delimiter=';', quoting=csv.QUOTE_MINIMAL)
-
-    writer.writerow(['ID', 'Название', 'Автор', 'ISBN', 'Статус', 'Дата публикации'])
-    books = Book.objects.all()
-    for book in books:
-        writer.writerow([
-            book.book_id,
-            book.title,
-            book.author,
-            book.isbn or '',
-            book.get_status_display(),
-            book.publication_date.strftime('%d.%m.%Y') if book.publication_date else ''
-        ])
-
-    return response
 
 @login_required
 @user_passes_test(lambda u: u.role == 'librarian')
