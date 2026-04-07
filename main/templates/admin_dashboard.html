@@ -50,10 +50,10 @@
 <!-- NAVIGATION -->
 <nav>
   <div class="nav-tabs">
-    <button class="nav-tab {% if active_tab == 'catalog' %}active{% endif %}" data-tab="catalog">📚 Каталог</button>
-    <button class="nav-tab {% if active_tab == 'users' %}active{% endif %}" data-tab="users">👥 Пользователи</button>
-    <button class="nav-tab {% if active_tab == 'data' %}active{% endif %}" data-tab="data">📊 Статистика</button>
-    <button class="nav-tab {% if active_tab == 'settings' %}active{% endif %}" data-tab="settings">⚙️ Настройки</button>
+    <button class="nav-tab active" data-tab="catalog" type="button">📚 Каталог</button>
+    <button class="nav-tab" data-tab="users" type="button">👥 Пользователи</button>
+    <button class="nav-tab" data-tab="data" type="button">📊 Статистика</button>
+    <button class="nav-tab" data-tab="settings" type="button">⚙️ Настройки</button>
   </div>
 </nav>
 
@@ -69,24 +69,8 @@
     </div>
     {% endif %}
 
-    <!-- STATISTICS -->
-    <div class="stats">
-      <div class="stat-item">
-        <span class="stat-label">Всего книг</span>
-        <span class="stat-value">{{ total_books }}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Пользователей</span>
-        <span class="stat-value">{{ total_users }}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Активных выдач</span>
-        <span class="stat-value issued">{{ active_loans }}</span>
-      </div>
-    </div>
-
     <!-- CATALOG TAB -->
-    <div id="catalog" class="tab-content {% if active_tab == 'catalog' %}active{% endif %}">
+    <div id="catalog" class="tab-content" style="display: block;">
       <div class="tab-header">
         <h2>Каталог Библиотеки</h2>
         <div class="search-wrap">
@@ -198,7 +182,7 @@
     </div> <!-- /catalog -->
 
     <!-- USERS TAB -->
-    <div id="users" class="tab-content {% if active_tab == 'users' %}active{% endif %}">
+    <div id="users" class="tab-content" style="display: none;">
       <div class="tab-header">
         <h2>Управление пользователями</h2>
         <div class="search-wrap">
@@ -261,7 +245,7 @@
     </div> <!-- /users -->
 
     <!-- STATISTICS TAB -->
-    <div id="data" class="tab-content {% if active_tab == 'data' %}active{% endif %}">
+    <div id="data" class="tab-content" style="display: none;">
       <div class="tab-header">
         <h2>Статистика и Данные</h2>
       </div>
@@ -282,6 +266,63 @@
         <div class="stat-item">
           <span class="stat-label">Активных выдач</span>
           <span class="stat-value issued">{{ active_loans }}</span>
+        </div>
+      </div>
+
+      <!-- Подробная статистика по книгам -->
+      <div style="margin-top: 30px;">
+        <h3 style="margin-bottom: 15px; font-size: 16px; font-weight: 600;">Статистика по книгам</h3>
+        <div class="stats">
+          <div class="stat-item">
+            <span class="stat-label">Доступна</span>
+            <span class="stat-value" style="color: #22c55e;">{{ available_books }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">В аренде</span>
+            <span class="stat-value" style="color: #f59e0b;">{{ on_loan_books }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Зарезервирована</span>
+            <span class="stat-value" style="color: #3b82f6;">{{ reserved_books }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Подробная статистика по пользователям -->
+      <div style="margin-top: 30px;">
+        <h3 style="margin-bottom: 15px; font-size: 16px; font-weight: 600;">Статистика по ролям пользователей</h3>
+        <div class="stats">
+          <div class="stat-item">
+            <span class="stat-label">Администраторов</span>
+            <span class="stat-value" style="color: #ef4444;">{{ admin_users }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Библиотекарей</span>
+            <span class="stat-value" style="color: #d97706;">{{ librarian_users }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Читателей</span>
+            <span class="stat-value" style="color: #3b82f6;">{{ reader_users }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Подробная статистика по выдачам -->
+      <div style="margin-top: 30px;">
+        <h3 style="margin-bottom: 15px; font-size: 16px; font-weight: 600;">Статистика по выдачам</h3>
+        <div class="stats">
+          <div class="stat-item">
+            <span class="stat-label">Активных выдач</span>
+            <span class="stat-value" style="color: #f59e0b;">{{ active_loans }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Возвращено</span>
+            <span class="stat-value" style="color: #22c55e;">{{ returned_loans }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Просрочено</span>
+            <span class="stat-value" style="color: #ef4444;">{{ overdue_loans }}</span>
+          </div>
         </div>
       </div>
 
@@ -311,7 +352,7 @@
     </div> <!-- /data -->
 
     <!-- SETTINGS TAB -->
-    <div id="settings" class="tab-content {% if active_tab == 'settings' %}active{% endif %}">
+    <div id="settings" class="tab-content" style="display: none;">
       <div class="tab-header">
         <h2>⚙️ Настройки</h2>
       </div>
@@ -354,6 +395,46 @@
 </main>
 
 <script>
+// Initialize tab switching
+function initTabs() {
+  const tabButtons = document.querySelectorAll('.nav-tab');
+  const tabContents = document.querySelectorAll('.tab-content');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const tabName = this.getAttribute('data-tab');
+      
+      // Hide all tabs
+      tabContents.forEach(tab => {
+        tab.style.display = 'none';
+      });
+      
+      // Remove active class from all buttons
+      tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected tab and mark button as active
+      const selectedTab = document.getElementById(tabName);
+      if (selectedTab) {
+        selectedTab.style.display = 'block';
+        this.classList.add('active');
+      }
+    });
+  });
+}
+
+// Wait for DOM to be ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initTabs);
+} else {
+  initTabs();
+}
+
+// Other functions
 function filterBooks() {
   const input = document.getElementById('searchInput').toLowerCase();
   const books = document.querySelectorAll('#booksContainer .book-item');
@@ -378,33 +459,6 @@ function toggleAddBookForm() {
   const form = document.getElementById('addBookForm');
   form.style.display = form.style.display === 'none' ? 'block' : 'none';
 }
-
-// Tab switching - initialize on load and handle clicks
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.nav-tab').forEach(tab => {
-    tab.addEventListener('click', function(e) {
-      e.preventDefault();
-      const tabName = this.getAttribute('data-tab');
-      
-      // Hide all tabs
-      document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-      });
-      
-      // Remove active class from all buttons
-      document.querySelectorAll('.nav-tab').forEach(t => {
-        t.classList.remove('active');
-      });
-      
-      // Show selected tab
-      const selectedTab = document.getElementById(tabName);
-      if (selectedTab) {
-        selectedTab.classList.add('active');
-        this.classList.add('active');
-      }
-    });
-  });
-});
 </script>
 
 </body>

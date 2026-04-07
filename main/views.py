@@ -132,12 +132,21 @@ def dashboard(request):
 def admin_dashboard(request):
     all_books = Book.objects.all()
     total_books = all_books.count()
+    available_books = all_books.filter(status='available').count()
+    on_loan_books = all_books.filter(status='on_loan').count()
+    reserved_books = all_books.filter(status='reserved').count()
     
     books = all_books.order_by('title')
 
     total_users = User.objects.count()
+    admin_users = User.objects.filter(role='admin').count()
+    librarian_users = User.objects.filter(role='librarian').count()
+    reader_users = User.objects.filter(role='reader').count()
+    
     total_loans = Loan.objects.count()
     active_loans = Loan.objects.filter(return_date__isnull=True).count()
+    returned_loans = Loan.objects.filter(return_date__isnull=False).count()
+    overdue_loans = Loan.objects.filter(return_date__isnull=True, due_date__lt=timezone.now().date()).count()
 
     users_list = User.objects.all().order_by('email')
     paginator = Paginator(users_list, 20)
@@ -150,9 +159,17 @@ def admin_dashboard(request):
         'books': books,
         'users': users,
         'total_books': total_books,
+        'available_books': available_books,
+        'on_loan_books': on_loan_books,
+        'reserved_books': reserved_books,
         'total_users': total_users,
+        'admin_users': admin_users,
+        'librarian_users': librarian_users,
+        'reader_users': reader_users,
         'total_loans': total_loans,
         'active_loans': active_loans,
+        'returned_loans': returned_loans,
+        'overdue_loans': overdue_loans,
         'active_tab': active_tab,
     }
     return render(request, 'admin_dashboard.html', context)
