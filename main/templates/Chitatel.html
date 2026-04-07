@@ -49,10 +49,10 @@
 <!-- NAVIGATION -->
 <nav>
     <div class="nav-tabs">
-        <button class="nav-tab {% if active_tab == 'catalog' %}active{% endif %}" data-tab="catalog">📚 Каталог</button>
-        <button class="nav-tab {% if active_tab == 'my_books' %}active{% endif %}" data-tab="my_books">📖 Мои книги</button>
-        <button class="nav-tab {% if active_tab == 'my_requests' %}active{% endif %}" data-tab="my_requests">📋 Мои запросы</button>
-        <button class="nav-tab {% if active_tab == 'settings' %}active{% endif %}" data-tab="settings">⚙️ Настройки</button>
+        <button class="nav-tab {% if active_tab == 'catalog' %}active{% endif %}" data-tab="catalog">Каталог</button>
+        <button class="nav-tab {% if active_tab == 'my_books' %}active{% endif %}" data-tab="my_books">Мои книги</button>
+        <button class="nav-tab {% if active_tab == 'my_requests' %}active{% endif %}" data-tab="my_requests">Мои запросы</button>
+        <button class="nav-tab {% if active_tab == 'settings' %}active{% endif %}" data-tab="settings">Настройки</button>
     </div>
 </nav>
 
@@ -176,9 +176,9 @@
                             <p class="my-book-author">{{ loan.book.author }}</p>
                             <p class="my-book-isbn">ISBN: {{ loan.book.isbn|default:"—" }}</p>
                             {% if loan.is_overdue %}
-                                <span class="status-badge overdue" style="margin-top: 8px;">⚠️ ПРОСРОЧЕНА на {{ loan.days_overdue }} дн.</span>
+                                <span class="status-badge overdue" style="margin-top: 8px;">ПРОСРОЧЕНА на {{ loan.days_overdue }} дн.</span>
                             {% elif loan.is_due_soon %}
-                                <span class="status-badge warning" style="margin-top: 8px;">⏰ Осталось {{ loan.days_until_due }} дней</span>
+                                <span class="status-badge warning" style="margin-top: 8px;">Осталось {{ loan.days_until_due }} дней</span>
                             {% else %}
                                 <span class="status-badge active" style="margin-top: 8px;">✓ Активна</span>
                             {% endif %}
@@ -227,16 +227,16 @@
                             <span class="detail-label">Статус:</span>
                             <span class="detail-value {% if loan.is_overdue %}text-danger{% else %}text-warning{% endif %}">
                                 {% if loan.is_overdue %}
-                                    ⚠️ ПРОСРОЧЕНА
+                                    ПРОСРОЧЕНА
                                 {% else %}
-                                    ⏰ Срок заканчивается завтра
+                                    Срок заканчивается завтра
                                 {% endif %}
                             </span>
                         </div>
                         {% endif %}
                     </div>
                     
-                    <p class="card-note">ℹ️ Пожалуйста, верните книгу в библиотеку в установленный срок</p>
+                    <p class="card-note">Пожалуйста, верните книгу в библиотеку в установленный срок</p>
                 </div>
                 {% endfor %}
             {% else %}
@@ -263,7 +263,7 @@
                             <p class="request-author">{{ req.book.author }}</p>
                         </div>
                         <span class="status-badge {% if req.status == 'pending' %}pending{% elif req.status == 'approved' %}approved{% else %}rejected{% endif %}">
-                            {% if req.status == 'pending' %}⏳ Ожидает{% elif req.status == 'approved' %}✓ Одобрена{% else %}✗ Отклонена{% endif %}
+                            {% if req.status == 'pending' %}Ожидает{% elif req.status == 'approved' %}✓ Одобрена{% else %}✗ Отклонена{% endif %}
                         </span>
                     </div>
                     <div class="request-details">
@@ -301,7 +301,7 @@
                 {% endfor %}
             {% else %}
                 <div class="empty-state">
-                    <p>📋 У вас нет запросов</p>
+                    <p>У вас нет запросов</p>
                 </div>
             {% endif %}
         </div>
@@ -310,7 +310,7 @@
     <!-- SETTINGS TAB -->
     <div id="settings" class="tab-content {% if active_tab == 'settings' %}active{% endif %}">
         <div class="tab-header">
-            <h2>⚙️ Настройки</h2>
+            <h2>Настройки</h2>
         </div>
 
         <div class="settings-container">
